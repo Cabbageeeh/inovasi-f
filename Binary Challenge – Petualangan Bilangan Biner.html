@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Binary Challenge – Petualangan Bilangan Biner</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0a1a4a;--card:#112a70;--tx:#eef3ff;--mu:#a9bcee;--ac:#38d5f5;--ac2:#a78bfa;--ok:#34d399;--no:#fb7185;--bd:#2f52b3}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:radial-gradient(circle at 20% 0,#1f45a8 0,var(--bg) 55%) var(--bg);color:var(--tx);font-family:Poppins,system-ui,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:620px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;margin-top:14px;animation:pop .35s}
+h1{font-size:clamp(1.9rem,7vw,2.8rem);margin:.2em 0;color:#fff;text-align:center}
+h2{margin:.2em 0}.c{text-align:center}.mu{color:var(--mu)}
+.mono{font-family:'Space Mono',monospace}
+.btn{font:inherit;font-weight:600;border:0;border-radius:14px;padding:12px 20px;cursor:pointer;background:linear-gradient(90deg,var(--ac),var(--ac2));color:#06101f;font-size:1rem;margin:4px;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input.in{width:100%;font:700 1.6rem 'Space Mono',monospace;text-align:center;padding:12px;border-radius:14px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);letter-spacing:.15em}
+input.in:focus{outline:none;border-color:var(--ac)}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600}
+.bar{height:10px;border-radius:9px;background:var(--bd);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .3s}
+.bar.t i{background:var(--no);transition:none}
+.lv{display:flex;gap:8px;margin:14px 0}.lv div{flex:1;padding:10px 4px;border-radius:12px;border:1px solid var(--bd);text-align:center;font-size:.8rem}
+.lv .on{border-color:var(--ac);color:var(--ac)}
+.box{width:130px;height:130px;margin:10px auto;border-radius:22px;border:3px solid var(--ac);display:grid;place-items:center;font:700 4rem 'Space Mono',monospace;background:var(--bg);transition:all .3s}
+.box.k{background:#000;color:#fff}.box.w{background:#fff;color:#000}
+.sq{width:clamp(40px,11vw,58px);height:clamp(40px,11vw,58px);border-radius:12px;border:3px solid var(--ac);font:700 1rem 'Space Mono',monospace;background:var(--bg);color:var(--mu);cursor:pointer;transition:transform .15s,background .2s}.sq:hover:not(:disabled){transform:scale(1.08)}.sq.k{background:#000}.sq.w{background:#fff}.sq.n{border-style:dashed;background:transparent}
+.col{display:flex;flex-direction:column;align-items:center;gap:8px}.dg{font:700 clamp(1.5rem,7vw,2.2rem) 'Space Mono',monospace;color:var(--ac)}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cb{flex:1;min-width:130px;padding:16px;font-size:1.05rem}
+.cb.blk{background:#000;color:#fff;border:2px solid #fff}.cb.wht{background:#fff;color:#000}
+pre{font:700 1.5rem 'Space Mono',monospace;margin:10px auto;display:inline-block;text-align:right}
+.fb{padding:14px;border-radius:14px;margin-top:12px;border:1px solid}
+.fb.ok{border-color:var(--ok);color:var(--ok)}.fb.no{border-color:var(--no)}.fb .t{color:var(--tx);font-size:.92rem;margin-top:4px;white-space:pre-line}
+.err{color:var(--no);min-height:1.4em;font-size:.9rem;text-align:center}
+.shake{animation:shake .4s}.bounce{animation:bounce .5s}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes bounce{40%{transform:scale(1.12)}}
+table{border-collapse:collapse;margin:8px auto}td{padding:6px 14px;border:1px solid var(--bd);font-family:'Space Mono',monospace}
+.hide{display:none}
+.bitrow{display:flex;align-items:center;gap:8px;margin:10px 0}
+.bits{flex:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.bt{aspect-ratio:1/1;width:100%;padding:0;border-radius:8px;border:2px solid #fbab1a;background:transparent;color:#fbab1a;font:700 clamp(1.4rem,6.5vw,2.3rem) 'Space Mono',monospace;cursor:pointer;transition:transform .12s}
+.bt:hover:not(:disabled){transform:scale(1.07)}.bt.on{background:#fbab1a;color:#12203a}
+.rt{width:130px;display:flex;align-items:center;gap:6px;font:700 1.4rem 'Space Mono',monospace;color:var(--ac)}
+.rt .val{flex:1;background:#fff;color:#0a1a4a;border-radius:8px;text-align:right;padding:6px 8px;font-size:clamp(1.8rem,8vw,2.8rem)}
+.pv div{background:#00bfe8;color:#fff;text-align:center;font:700 clamp(.8rem,3.4vw,1.15rem) Poppins,sans-serif;padding:8px 0;border-radius:6px}
+.sp{width:130px}
+@media (max-width:520px){.bitrow{flex-direction:column}.rt{width:100%;order:-1;justify-content:center}.rt .val{flex:none;width:150px;text-align:center}.sp{display:none}.bits{width:100%;gap:3px}}
+.res td:first-child{font-family:Poppins}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div id="hud" class="card hide" style="margin-top:0">
+  <div class="hud"><span id="hN"></span><span id="hL">Level 1</span><span id="hS">⭐ 0</span><span id="hH">❤️❤️❤️</span><button class="btn g" id="snd" style="padding:6px 12px" onclick="toggleSnd()">🔊</button></div>
+  <div class="bar"><i id="pg"></i></div>
+ </div>
+ <div id="app"></div>
+</div>
+<script>
+/* ===== Utilitas ===== */
+const $=id=>document.getElementById(id), rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const bin=n=>n.toString(2), shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+let sndOn=true,AC;
+function beep(seq){if(!sndOn)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime;seq.forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.type='triangle';g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);t+=d})}catch(e){}}
+const SND={ok:[[660,.1],[880,.15]],no:[[220,.2],[160,.25]],lvl:[[523,.1],[659,.1],[784,.1],[1047,.25]],end:[[523,.12],[659,.12],[784,.12],[1047,.12],[784,.12],[1047,.3]]};
+function toggleSnd(){sndOn=!sndOn;$('snd').textContent=sndOn?'🔊':'🔇'}
+
+/* ===== Pembahasan penjumlahan biner (kolom demi kolom) ===== */
+function explainAdd(a,b){
+  const x=bin(a),y=bin(b),n=Math.max(x.length,y.length),p=x.padStart(n,'0'),q=y.padStart(n,'0');
+  let c=0,L=[];
+  for(let i=n-1;i>=0;i--){const s=+p[i]+ +q[i]+c;L.push(`Kolom ${n-i}: ${p[i]} + ${q[i]}${c?' + carry 1':''} = ${bin(s)} → tulis ${s%2}${s>1?', carry 1':''}`);c=s>1?1:0}
+  if(c)L.push('Carry terakhir 1 ditulis di paling kiri.');
+  return L.join('\n')+`\nHasil: ${bin(a+b)}`;
+}
+function pad(x,y,op='+'){const n=Math.max(x.length,y.length)+1;return `${' '.repeat(n-x.length)}${x}\n${op}${' '.repeat(n-y.length-1)}${y}\n${'-'.repeat(n)}`}
+
+/* ===== Generator soal (tambah tipe baru di sini) ===== */
+const GEN={
+ color(n){let d;do{d=Array.from({length:n},()=>rnd(0,1)).join('')}while(!d.includes('0')||!d.includes('1'));return{kind:'color',d,ans:d,exp:''}},
+ bits(lo,hi){const n=rnd(lo,hi),pv=[128,64,32,16,8,4,2,1],parts=[];let m=n;pv.forEach(v=>{if(m>=v){parts.push(v);m-=v}});return{kind:'bits',n,ans:n.toString(2).padStart(8,'0'),exp:`${n} = ${parts.join(' + ')}`}},
+ add(bits){const a=rnd(1,2**bits-1),b=rnd(1,2**bits-1);return{kind:'bin',html:`<pre>${pad(bin(a),bin(b))}</pre><div>Hasil (biner) = ?</div>`,ans:bin(a+b),exp:explainAdd(a,b)}},
+ three(){const a=rnd(1,7),b=rnd(1,7),c=rnd(1,7);return{kind:'bin',html:`<div class="mono" style="font-size:1.4rem">${bin(a)} + ${bin(b)} + ${bin(c)} = ?</div>`,ans:bin(a+b+c),exp:`Jumlahkan dua bilangan dulu, lalu tambahkan yang ketiga.\nPengecekan: ${a} + ${b} + ${c} = ${a+b+c} = ${bin(a+b+c)} (biner).`}},
+ missing(){const a=rnd(3,10),c=a+rnd(2,8);return{kind:'bin',html:`<div class="mono" style="font-size:1.5rem">${bin(a)} + ? = ${bin(c)}</div><div>Bilangan yang hilang (biner)?</div>`,ans:bin(c-a),exp:`Cari ? dengan pengurangan: ${bin(c)} − ${bin(a)}.\nPengecekan: ${c} − ${a} = ${c-a} = ${bin(c-a)}.`}},
+ puzzle(){const n=rnd(4,14);return{kind:'bin',html:`<div>🧩 Aku sebuah bilangan biner. Jika aku ditambah <b class="mono">1</b>, hasilnya <b class="mono">${bin(n+1)}</b>. Siapakah aku?</div>`,ans:bin(n),exp:`Kurangi hasilnya dengan 1: ${bin(n+1)} − 1 = ${bin(n)}.`}},
+ d2b(lo=9,hi=31){const n=rnd(lo,hi),parts=[];let m=n;[16,8,4,2,1].forEach(v=>{if(m>=v){parts.push(v);m-=v}});return{kind:'bin',html:`<div class="mu">Ubah ke biner</div><div class="mono" style="font-size:2.6rem">${n}</div>`,ans:bin(n),exp:`${n} = ${parts.join(' + ')}\nTulis 1 pada nilai tempat itu dan 0 pada sisanya: ${bin(n)}`}},
+ b2d(lo=9,hi=31){const n=rnd(lo,hi),s=bin(n),t=[...s].map((c,i)=>c==='1'?2**(s.length-1-i):null).filter(v=>v!==null);return{kind:'dec',html:`<div class="mu">Ubah ke desimal</div><div class="mono" style="font-size:2.6rem">${s}</div>`,ans:String(n),exp:`Jumlahkan nilai tempat yang bernilai 1: ${t.join(' + ')} = ${n}`}}
+};
+/* ===== Konfigurasi level ===== */
+const LEVELS=[
+ {name:'Binary Color',diff:'Mudah',pts:10,time:0,hint:'0 = hitam, 1 = putih.',desc:'Kamu akan melihat deret bilangan biner. Warnai setiap kotak: angka 0 menjadi HITAM, angka 1 menjadi PUTIH.',make:()=>[5,6,6,7,8].map(n=>GEN.color(n))},
+ {name:'Binary Value',diff:'Sedang',pts:20,time:30,hint:'Jumlahkan nilai tempat yang bernilai 1.',desc:'Nyalakan kotak sampai jumlahnya sama dengan angka putih. ⏱️ 30 detik per soal.',make:()=>[[1,15],[1,15],[5,20],[8,31],[16,40],[16,63],[32,100],[40,127],[64,160],[100,255]].map(r=>GEN.bits(r[0],r[1]))},
+ {name:'Binary Challenge',diff:'Sulit',pts:30,time:0,hint:'Kerjakan dari kanan ke kiri dan perhatikan nilai tempat setiap digit.',desc:'Ubah biner ke desimal dan desimal ke biner. 8 soal.',make:()=>[GEN.b2d(3,15),GEN.d2b(3,15),GEN.b2d(5,15),GEN.d2b(5,15),GEN.b2d(8,20),GEN.d2b(8,20),GEN.b2d(10,31),GEN.d2b(10,31)]}
+];
+const MATERI=`<p><b>Bilangan biner</b> hanya memakai dua angka: 0 dan 1.</p>
+<p><b>Aturan penjumlahan:</b></p><table><tr><td>0+0</td><td>0</td></tr><tr><td>0+1</td><td>1</td></tr><tr><td>1+0</td><td>1</td></tr><tr><td>1+1</td><td>10 (tulis 0, carry 1)</td></tr></table>
+<p><b>Nilai tempat</b> (dari kanan): 1, 2, 4, 8, 16, …<br>Contoh: 1101 = 8 + 4 + 0 + 1 = 13.</p>
+<p><b>Desimal → biner:</b> bagi 2 terus-menerus, lalu baca sisa dari bawah ke atas.</p>`;
+
+/* ===== State ===== */
+let S,timer,cur=[];
+function fresh(){S={name:'',l:0,i:0,qs:[],lives:3,score:[0,0,0],ok:[0,0,0],bad:[0,0,0],bonus:[0,0,0],unlocked:0,t0:0,done:false}}
+fresh();
+const app=$('app');
+function hud(){const h=$('hud');h.classList.toggle('hide',!S.t0);if(!S.t0)return;
+ $('hN').textContent='👤 '+S.name;$('hL').textContent='Level '+(S.l+1);
+ $('hS').innerHTML='⭐ Skor Level: <b>'+S.score[S.l]+'</b> · Total: <b>'+S.score.reduce((a,b)=>a+b,0)+'</b>';$('hH').textContent='❤️'.repeat(S.lives)+'🖤'.repeat(3-S.lives);
+ $('pg').style.width=(S.qs.length?S.i/S.qs.length*100:0)+'%'}
+function levelChips(){return `<div class="lv">${LEVELS.map((L,i)=>`<div class="${i<=S.unlocked?'on':''}">${i<=S.unlocked?(i<S.unlocked?'✅':'▶️'):'🔒'}<br>Level ${i+1}<br><small>${L.name}</small></div>`).join('')}</div>`}
+function modal(html){const m=document.createElement('div');m.style.cssText='position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:16px;z-index:9';m.innerHTML=`<div class="card" style="max-width:480px;max-height:85vh;overflow:auto">${html}<div class="c"><button class="btn">Tutup</button></div></div>`;m.querySelector('button').onclick=()=>m.remove();document.body.appendChild(m)}
+
+/* ===== Layar ===== */
+function home(){clearInterval(timer);fresh();hud();
+ app.innerHTML=`<div class="card"><div class="c mono" style="font-size:2.6rem;letter-spacing:.15em;color:var(--ac)">0101</div><h1>Binary Challenge</h1><p class="c mu">Petualangan Menguasai Bilangan Biner</p>
+ <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>${levelChips()}
+ <input class="in" id="nm" maxlength="16" placeholder="Nama pemain" style="font-size:1.1rem;letter-spacing:0;font-family:Poppins">
+ <div class="err" id="er"></div><div class="c"><button class="btn" onclick="startGame()">🚀 Mulai Game</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div></div>`}
+function startGame(){const n=$('nm').value.trim();if(!n){$('er').textContent='Isi nama pemain dulu ya!';return}S.name=n;S.t0=Date.now();intro()}
+function intro(){clearInterval(timer);const L=LEVELS[S.l];hud();
+ const rules=S.l===1?`<table style="font-size:1.2rem"><tr><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr></table>`:'';
+ app.innerHTML=`<div class="card c"><div class="mu">Level ${S.l+1} · ${L.diff}</div><h2>${L.name}</h2><p>${L.desc}</p>${rules}${levelChips()}<button class="btn" onclick="startLevel()">Mulai Level ${S.l+1}</button></div>`}
+function startLevel(){S.qs=LEVELS[S.l].make();S.i=0;S.score[S.l]=0;S.ok[S.l]=0;S.bad[S.l]=0;S.bonus[S.l]=0;S.lives=3;question()}
+function question(){clearInterval(timer);hud();const L=LEVELS[S.l],q=S.qs[S.i];
+ let body;
+ if(q.kind==='color')body=`<div class="c mu">Ketuk tiap kotak untuk mewarnainya.<br>0 = <b>HITAM</b> &nbsp;·&nbsp; 1 = <b>PUTIH</b></div><div class="row" style="margin:16px 0">${[...q.d].map((c,i)=>`<div class="col"><div class="dg">${c}</div><button class="sq n" data-i="${i}" aria-label="Kotak ${i+1}"></button></div>`).join('')}</div><div class="err" id="er"></div><div class="c"><button class="btn" onclick="checkColor()">Periksa</button></div>`;
+ else if(q.kind==='bits'){const pv=[128,64,32,16,8,4,2,1];body=`<div class="bitrow"><div class="bits">${pv.map((v,i)=>`<button class="bt" data-i="${i}">0</button>`).join('')}</div><div class="rt"><span>=</span><div class="val">${q.n}</div></div></div><div class="bitrow" style="margin-top:0"><div class="bits pv">${pv.map(v=>`<div>${v}</div>`).join('')}</div><div class="sp"></div></div><div class="c"><button class="btn" onclick="ans(cur.join(''))">Periksa</button></div>`}
+ else body=`<div class="c">${q.html}</div><input class="in" id="ai" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="${q.kind==='bin'?'0 dan 1':'angka'}"><div class="err" id="er"></div><div class="c"><button class="btn" onclick="submitAns()">Periksa</button></div>`;
+ app.innerHTML=`<div class="card"><div class="hud"><span class="mu">Soal ${S.i+1} / ${S.qs.length}</span><button class="btn g" style="padding:6px 12px" onclick="modal('<h2>💡 Petunjuk</h2><p>${L.hint}</p>')">💡 Lihat Petunjuk</button></div>${L.time?'<div class="bar t"><i id="tb" style="width:100%"></i></div>':''}${body}<div id="fb"></div></div>`;
+ if(q.kind==='color'){cur=Array(q.d.length).fill(null);document.querySelectorAll('.sq').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;cur[i]=cur[i]==='1'?'0':cur[i]==='0'?'1':'0';b.className='sq '+(cur[i]==='1'?'w':'k');$('er').textContent=''})}
+ if(q.kind==='bits'){cur=Array(8).fill('0');document.querySelectorAll('.bt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;cur[i]=cur[i]==='1'?'0':'1';b.textContent=cur[i];b.classList.toggle('on',cur[i]==='1')})}
+ const inp=$('ai');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')submitAns()}}
+ if(L.time){const end=Date.now()+L.time*1000;timer=setInterval(()=>{const r=end-Date.now();$('tb').style.width=Math.max(0,r/(L.time*10))+'%';if(r<=0){clearInterval(timer);ans(null)}},100)}}
+function checkColor(){if(cur.includes(null)){$('er').textContent='Warnai semua kotak dulu ya!';return}ans(cur.join(''))}
+function submitAns(){const q=S.qs[S.i],v=$('ai').value.trim(),re=q.kind==='bin'?/^[01]+$/:/^\d+$/;
+ if(!re.test(v)){$('er').textContent=q.kind==='bin'?'Hanya boleh angka 0 dan 1!':'Isi dengan angka saja!';return}
+ ans(q.kind==='bin'?v.replace(/^0+(?=.)/,''):String(+v))}
+function ans(v){clearInterval(timer);const L=LEVELS[S.l],q=S.qs[S.i],good=v===q.ans;
+ const card=app.firstChild;card.classList.add(good?'bounce':'shake');
+ if(good){S.score[S.l]+=L.pts;S.ok[S.l]++;beep(SND.ok)}else{S.bad[S.l]++;S.lives--;beep(SND.no)}
+ let head,txt=q.exp;
+ if(q.kind==='color'){document.querySelectorAll('.sq').forEach((b,i)=>{const t=q.d[i];b.className='sq '+(t==='1'?'w':'k');b.style.borderColor=cur[i]===t?'var(--ok)':'var(--no)';b.style.borderWidth='4px'});head=good?'Benar! 0 direpresentasikan dengan warna hitam dan 1 dengan warna putih.':'Belum tepat. Ingat: 0 = hitam dan 1 = putih.';txt=good?'':'Kotak berbingkai merah adalah yang belum tepat. Warna yang benar sudah ditampilkan.'}
+ else if(q.kind==='bits'){document.querySelectorAll('.bt').forEach((b,i)=>{const t=q.ans[i];b.textContent=t;b.classList.toggle('on',t==='1');b.style.borderColor=cur[i]===t?'var(--ok)':'var(--no)'});head=good?'Benar!':(v===null?'⏰ Waktu habis! ':'')+`Jawaban yang benar: ${q.ans}`}
+ else if(good)head='Benar! Kerja bagus!';
+ else head=(v===null?'⏰ Waktu habis! ':'')+`Jawaban yang benar: ${q.ans}`;
+ const over=S.lives<=0,last=S.i===S.qs.length-1;
+ document.querySelectorAll('.card button.btn,.card input,.sq,.bt').forEach(e=>{if(!e.classList.contains('g'))e.disabled=true});
+ $('fb').innerHTML=`<div class="fb ${good?'ok':'no'}"><b>${good?'✅ ':'❌ '}${head}</b>${good&&q.kind!=='color'&&S.l===2?'':txt?`<div class="t">${txt}</div>`:''}</div><div class="c" style="margin-top:8px"><button class="btn" onclick="${over?'gameOver()':'next()'}">${over?'Lanjut':last?'Selesai Level':'Soal Berikutnya'}</button></div>`;
+ hud();}
+function next(){S.i++;if(S.i>=S.qs.length)return levelDone();question()}
+function levelDone(){clearInterval(timer);const L=LEVELS[S.l];if(S.bad[S.l]===0){S.bonus[S.l]=50;S.score[S.l]+=50}
+ hud();const last=S.l===2;beep(last?SND.end:SND.lvl);
+ app.innerHTML=`<div class="card c"><div style="font-size:3rem">🎉</div><h2>Level berhasil diselesaikan!</h2><p>Skor Level ${S.l+1}: <b>${S.score[S.l]}</b></p>${S.bonus[S.l]?'<p class="mu">Bonus tanpa kesalahan +50 🌟</p>':''}<button class="btn" onclick="after()">${last?'Lihat Hasil Akhir':'Buka Level Berikutnya'}</button></div>`}
+function after(){if(S.l===2)return final();S.l++;S.unlocked=Math.max(S.unlocked,S.l);intro()}
+function predikat(pc){return pc>=90?'Master Biner':pc>=75?'Ahli Biner':pc>=60?'Pejuang Biner':'Ayo Berlatih Lagi'}
+function gameOver(){clearInterval(timer);beep(SND.no);const tot=S.score.reduce((a,b)=>a+b,0),ok=S.ok.reduce((a,b)=>a+b,0),bad=S.bad.reduce((a,b)=>a+b,0),pc=ok+bad?Math.round(ok/(ok+bad)*100):0;
+ const rows=[0,1,2].map(i=>`<tr><td>Skor Level ${i+1}</td><td>${i<=S.l?S.score[i]:'-'}</td></tr>`).join('');
+ app.innerHTML=`<div class="card c"><div style="font-size:3rem">💔</div><h2>Game Berakhir</h2><p>Nyawamu habis di Level ${S.l+1}.</p><table class="res" style="text-align:left">${rows}<tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Nilai</td><td>${pc}</td></tr></table><h2 style="color:var(--ac)">${predikat(pc)}</h2><button class="btn" onclick="retry()">Coba Lagi</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`}
+function retry(){S.t0=S.t0||Date.now();startLevel()}
+function final(){const tot=S.score.reduce((a,b)=>a+b,0),ok=S.ok.reduce((a,b)=>a+b,0),bad=S.bad.reduce((a,b)=>a+b,0),pc=Math.round(ok/(ok+bad)*100);
+ const pr=pc>=90?'Master Biner':pc>=75?'Ahli Biner':pc>=60?'Pejuang Biner':'Ayo Berlatih Lagi';
+ const sec=Math.round((Date.now()-S.t0)/1000),tm=`${Math.floor(sec/60)} menit ${sec%60} detik`;
+ hud();beep(SND.end);
+ app.innerHTML=`<div class="card c"><div style="font-size:3rem">🏆</div><h2>Selamat! Kamu telah menyelesaikan Binary Challenge!</h2>
+ <table class="res" style="text-align:left"><tr><td>Nama pemain</td><td>${S.name.replace(/</g,'&lt;')}</td></tr><tr><td>Skor Level 1</td><td>${S.score[0]}</td></tr><tr><td>Skor Level 2</td><td>${S.score[1]}</td></tr><tr><td>Skor Level 3</td><td>${S.score[2]}</td></tr><tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Waktu bermain</td><td>${tm}</td></tr><tr><td>Akurasi</td><td>${pc}%</td></tr></table>
+ <h2 style="color:var(--ac)">🎖️ ${pr}</h2><button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`}
+home();
+</script>
+</body>
+</html>
