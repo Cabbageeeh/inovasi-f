@@ -4,37 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Binary Challenge – Petualangan Bilangan Biner</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#0a1a4a;--card:#112a70;--tx:#eef3ff;--mu:#a9bcee;--ac:#38d5f5;--ac2:#a78bfa;--ok:#34d399;--no:#fb7185;--bd:#2f52b3}
+:root{color-scheme:light;--page:#ffffff;--bg:#f4f8ff;--card:#cfe3ff;--tx:#10286b;--mu:#4a64a8;--ac:#2563eb;--ac2:#5b9bff;--ok:#16a34a;--no:#e11d48;--bd:#9db9ea}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{background:radial-gradient(circle at 20% 0,#1f45a8 0,var(--bg) 55%) var(--bg);color:var(--tx);font-family:Poppins,system-ui,sans-serif;font-size:16px;line-height:1.5}
-.wrap{max-width:620px;margin:0 auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;margin-top:14px;animation:pop .35s}
-h1{font-size:clamp(1.9rem,7vw,2.8rem);margin:.2em 0;color:#fff;text-align:center}
-h2{margin:.2em 0}.c{text-align:center}.mu{color:var(--mu)}
-.mono{font-family:'Space Mono',monospace}
-.btn{font:inherit;font-weight:600;border:0;border-radius:14px;padding:12px 20px;cursor:pointer;background:linear-gradient(90deg,var(--ac),var(--ac2));color:#06101f;font-size:1rem;margin:4px;transition:transform .15s}
+body{background:var(--page);color:var(--tx);font-family:Nunito,system-ui,sans-serif;font-size:17px;line-height:1.5}
+.wrap{max-width:620px;margin:0 auto;padding:16px;position:relative;z-index:1}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#fff}
+#bg span{position:absolute;font-family:Fredoka,Nunito,sans-serif;font-weight:700;opacity:.7;transform:rotate(var(--r));animation:fl 7s ease-in-out infinite alternate}
+@keyframes fl{to{transform:translateY(-20px) rotate(calc(var(--r) + 12deg))}}
+@media (prefers-reduced-motion:reduce){#bg span{animation:none}}
+.card{box-shadow:0 10px 30px rgba(37,99,235,.2);background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;margin-top:14px;animation:pop .35s}
+h1{font-family:Fredoka,Nunito,sans-serif;font-size:clamp(1.9rem,7vw,2.8rem);margin:.2em 0;color:#10286b;text-align:center}
+h2{margin:.2em 0;font-family:Fredoka,Nunito,sans-serif}.c{text-align:center}.mu{color:var(--mu)}
+.mono{font-family:Fredoka,Nunito,sans-serif}
+.btn{font:inherit;font-family:Fredoka,Nunito,sans-serif;font-weight:600;letter-spacing:.3px;border:0;border-radius:14px;padding:12px 20px;cursor:pointer;background:linear-gradient(90deg,var(--ac),var(--ac2));color:#fff;font-size:1rem;margin:4px;transition:transform .15s}
 .btn:hover{transform:translateY(-2px)}.btn.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-input.in{width:100%;font:700 1.6rem 'Space Mono',monospace;text-align:center;padding:12px;border-radius:14px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);letter-spacing:.15em}
+input.in{width:100%;font:700 1.6rem Fredoka,Nunito,sans-serif;text-align:center;padding:12px;border-radius:14px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);letter-spacing:.15em}
 input.in:focus{outline:none;border-color:var(--ac)}
 .hud{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600}
 .bar{height:10px;border-radius:9px;background:var(--bd);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .3s}
 .bar.t i{background:var(--no);transition:none}
-.lv{display:flex;gap:8px;margin:14px 0}.lv div{flex:1;padding:10px 4px;border-radius:12px;border:1px solid var(--bd);text-align:center;font-size:.8rem}
-.lv .on{border-color:var(--ac);color:var(--ac)}
-.box{width:130px;height:130px;margin:10px auto;border-radius:22px;border:3px solid var(--ac);display:grid;place-items:center;font:700 4rem 'Space Mono',monospace;background:var(--bg);transition:all .3s}
+.lv{display:flex;gap:10px;margin:14px 0}
+.lv div{flex:1;padding:12px 4px 10px;border-radius:18px;text-align:center;font-family:Fredoka,Nunito,sans-serif;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .2s}
+.lv .ic{font-size:2rem;line-height:1.1}.lv b{font-size:.95rem;font-weight:600}.lv small{font-size:.72rem;opacity:.85}
+.lv .c0{background:#ffe98a;color:#8a6a00}.lv .c1{background:#ffc2dc;color:#a93b6e}.lv .c2{background:#cdf27e;color:#55741a}
+.lv .lk{opacity:.55;filter:saturate(.5)}.lv .cur{box-shadow:0 0 0 3px #fff;transform:translateY(-3px)}
+.lv .st{position:absolute;top:4px;right:6px;font-style:normal;font-size:.9rem}
+.box{width:130px;height:130px;margin:10px auto;border-radius:22px;border:3px solid var(--ac);display:grid;place-items:center;font:700 4rem Fredoka,Nunito,sans-serif;background:var(--bg);transition:all .3s}
 .box.k{background:#000;color:#fff}.box.w{background:#fff;color:#000}
-.sq{width:clamp(40px,11vw,58px);height:clamp(40px,11vw,58px);border-radius:12px;border:3px solid var(--ac);font:700 1rem 'Space Mono',monospace;background:var(--bg);color:var(--mu);cursor:pointer;transition:transform .15s,background .2s}.sq:hover:not(:disabled){transform:scale(1.08)}.sq.k{background:#000}.sq.w{background:#fff}.sq.n{border-style:dashed;background:transparent}
-.col{display:flex;flex-direction:column;align-items:center;gap:8px}.dg{font:700 clamp(1.5rem,7vw,2.2rem) 'Space Mono',monospace;color:var(--ac)}
+.sq{width:clamp(40px,11vw,58px);height:clamp(40px,11vw,58px);border-radius:12px;border:3px solid var(--ac);font:700 1rem Fredoka,Nunito,sans-serif;background:var(--bg);color:var(--mu);cursor:pointer;transition:transform .15s,background .2s}.sq:hover:not(:disabled){transform:scale(1.08)}.sq.k{background:#000}.sq.w{background:#fff}.sq.n{border-style:dashed;background:transparent}
+.col{display:flex;flex-direction:column;align-items:center;gap:8px}.dg{font:700 clamp(1.5rem,7vw,2.2rem) Fredoka,Nunito,sans-serif;color:var(--ac)}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .cb{flex:1;min-width:130px;padding:16px;font-size:1.05rem}
 .cb.blk{background:#000;color:#fff;border:2px solid #fff}.cb.wht{background:#fff;color:#000}
-pre{font:700 1.5rem 'Space Mono',monospace;margin:10px auto;display:inline-block;text-align:right}
+pre{font:700 1.5rem Fredoka,Nunito,sans-serif;margin:10px auto;display:inline-block;text-align:right}
 .fb{padding:14px;border-radius:14px;margin-top:12px;border:1px solid}
 .fb.ok{border-color:var(--ok);color:var(--ok)}.fb.no{border-color:var(--no)}.fb .t{color:var(--tx);font-size:.92rem;margin-top:4px;white-space:pre-line}
 .err{color:var(--no);min-height:1.4em;font-size:.9rem;text-align:center}
@@ -42,21 +50,23 @@ pre{font:700 1.5rem 'Space Mono',monospace;margin:10px auto;display:inline-block
 @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}}
 @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @keyframes bounce{40%{transform:scale(1.12)}}
-table{border-collapse:collapse;margin:8px auto}td{padding:6px 14px;border:1px solid var(--bd);font-family:'Space Mono',monospace}
+table{border-collapse:collapse;margin:8px auto}
+.mt{text-align:left;font-size:.95rem}.mt h3{margin:14px 0 4px;font-size:1.05rem;color:var(--ac);font-family:Fredoka,Nunito,sans-serif}.mt p{margin:4px 0}.mt .tip{background:var(--bg);border-radius:12px;padding:8px 12px;margin:8px 0}.mt table td{padding:5px 8px;text-align:center;font-size:.9rem}td{padding:6px 14px;border:1px solid var(--bd);font-family:Fredoka,Nunito,sans-serif}
 .hide{display:none}
 .bitrow{display:flex;align-items:center;gap:8px;margin:10px 0}
 .bits{flex:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
-.bt{aspect-ratio:1/1;width:100%;padding:0;border-radius:8px;border:2px solid #fbab1a;background:transparent;color:#fbab1a;font:700 clamp(1.4rem,6.5vw,2.3rem) 'Space Mono',monospace;cursor:pointer;transition:transform .12s}
-.bt:hover:not(:disabled){transform:scale(1.07)}.bt.on{background:#fbab1a;color:#12203a}
-.rt{width:130px;display:flex;align-items:center;gap:6px;font:700 1.4rem 'Space Mono',monospace;color:var(--ac)}
-.rt .val{flex:1;background:#fff;color:#0a1a4a;border-radius:8px;text-align:right;padding:6px 8px;font-size:clamp(1.8rem,8vw,2.8rem)}
-.pv div{background:#00bfe8;color:#fff;text-align:center;font:700 clamp(.8rem,3.4vw,1.15rem) Poppins,sans-serif;padding:8px 0;border-radius:6px}
+.bt{aspect-ratio:1/1;width:100%;padding:0;border-radius:8px;border:2px solid #d9780a;background:transparent;color:#d9780a;font:700 clamp(1.4rem,6.5vw,2.3rem) Fredoka,Nunito,sans-serif;cursor:pointer;transition:transform .12s}
+.bt:hover:not(:disabled){transform:scale(1.07)}.bt.on{background:#ffa51f;color:#10286b}
+.rt{width:130px;display:flex;align-items:center;gap:6px;font:700 1.4rem Fredoka,Nunito,sans-serif;color:var(--ac)}
+.rt .val{flex:1;background:#fff;color:#10286b;border-radius:8px;text-align:right;padding:6px 8px;font-size:clamp(1.8rem,8vw,2.8rem)}
+.pv div{background:#00bfe8;color:#fff;text-align:center;font:700 clamp(.8rem,3.4vw,1.15rem) Nunito,sans-serif;padding:8px 0;border-radius:6px}
 .sp{width:130px}
 @media (max-width:520px){.bitrow{flex-direction:column}.rt{width:100%;order:-1;justify-content:center}.rt .val{flex:none;width:150px;text-align:center}.sp{display:none}.bits{width:100%;gap:3px}}
-.res td:first-child{font-family:Poppins}
+.res td:first-child{font-family:Nunito}
 </style>
 </head>
 <body>
+<div id="bg" aria-hidden="true"></div>
 <div class="wrap">
  <div id="hud" class="card hide" style="margin-top:0">
   <div class="hud"><span id="hN"></span><span id="hL">Level 1</span><span id="hS">⭐ 0</span><span id="hH">❤️❤️❤️</span><button class="btn g" id="snd" style="padding:6px 12px" onclick="toggleSnd()">🔊</button></div>
@@ -97,13 +107,28 @@ const GEN={
 /* ===== Konfigurasi level ===== */
 const LEVELS=[
  {name:'Binary Color',diff:'Mudah',pts:10,time:0,hint:'0 = hitam, 1 = putih.',desc:'Kamu akan melihat deret bilangan biner. Warnai setiap kotak: angka 0 menjadi HITAM, angka 1 menjadi PUTIH.',make:()=>[5,6,6,7,8].map(n=>GEN.color(n))},
- {name:'Binary Value',diff:'Sedang',pts:20,time:30,hint:'Jumlahkan nilai tempat yang bernilai 1.',desc:'Nyalakan kotak sampai jumlahnya sama dengan angka putih. ⏱️ 30 detik per soal.',make:()=>[[1,15],[1,15],[5,20],[8,31],[16,40],[16,63],[32,100],[40,127],[64,160],[100,255]].map(r=>GEN.bits(r[0],r[1]))},
- {name:'Binary Challenge',diff:'Sulit',pts:30,time:0,hint:'Kerjakan dari kanan ke kiri dan perhatikan nilai tempat setiap digit.',desc:'Ubah biner ke desimal dan desimal ke biner. 8 soal.',make:()=>[GEN.b2d(3,15),GEN.d2b(3,15),GEN.b2d(5,15),GEN.d2b(5,15),GEN.b2d(8,20),GEN.d2b(8,20),GEN.b2d(10,31),GEN.d2b(10,31)]}
+ {name:'Binary Value',diff:'Sedang',pts:20,time:30,hint:'Jumlahkan nilai tempat yang bernilai 1.',desc:'Nyalakan kotak sampai jumlahnya sama dengan angka putih. ⏱️ 30 detik per soal.',make:()=>[[1,15],[1,15],[5,20],[8,31],[16,40],[16,63],[32,70],[40,90],[50,99],[60,99]].map(r=>GEN.bits(r[0],r[1]))},
+ {name:'Binary Challenge',diff:'Sulit',pts:30,time:0,hint:'Kerjakan dari kanan ke kiri dan perhatikan nilai tempat setiap digit.',desc:'Ubah biner ke desimal dan desimal ke biner. 5 soal.',make:()=>[GEN.b2d(3,9),GEN.d2b(3,9),GEN.b2d(8,15),GEN.d2b(8,15),GEN.b2d(12,19)]}
 ];
-const MATERI=`<p><b>Bilangan biner</b> hanya memakai dua angka: 0 dan 1.</p>
-<p><b>Aturan penjumlahan:</b></p><table><tr><td>0+0</td><td>0</td></tr><tr><td>0+1</td><td>1</td></tr><tr><td>1+0</td><td>1</td></tr><tr><td>1+1</td><td>10 (tulis 0, carry 1)</td></tr></table>
-<p><b>Nilai tempat</b> (dari kanan): 1, 2, 4, 8, 16, …<br>Contoh: 1101 = 8 + 4 + 0 + 1 = 13.</p>
-<p><b>Desimal → biner:</b> bagi 2 terus-menerus, lalu baca sisa dari bawah ke atas.</p>`;
+const MATERI=`<div class="mt">
+<h3>1. Apa itu bilangan biner?</h3>
+<p>Bilangan biner hanya memakai dua angka: <b>0</b> dan <b>1</b>. Komputer memakainya karena sirkuit hanya punya dua keadaan: mati (0) dan menyala (1).</p>
+<h3>2. Nilai tempat</h3>
+<p>Setiap kotak biner punya nilai tempat. Dari kanan ke kiri, nilainya selalu dikali 2.</p>
+<table><tr><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr></table>
+<h3>3. Biner ke desimal</h3>
+<p>Jumlahkan nilai tempat yang bernilai <b>1</b>. Contoh: <b>1101</b></p>
+<table><tr><td>8</td><td>4</td><td>2</td><td>1</td></tr><tr><td>1</td><td>1</td><td>0</td><td>1</td></tr></table>
+<div class="tip">8 + 4 + 0 + 1 = <b>13</b></div>
+<h3>4. Desimal ke biner</h3>
+<p>Cari nilai tempat yang muat, beri angka 1, lalu kurangkan. Contoh: <b>13</b></p>
+<div class="tip">13 − 8 = 5 → kotak 8 = <b>1</b><br>5 − 4 = 1 → kotak 4 = <b>1</b><br>kotak 2 tidak muat → <b>0</b><br>1 − 1 = 0 → kotak 1 = <b>1</b><br>Hasil: <b>1101</b></div>
+<h3>5. Contoh angka biner</h3>
+<table><tr><td>Desimal</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>8</td><td>10</td></tr><tr><td>Biner</td><td>1</td><td>10</td><td>11</td><td>100</td><td>101</td><td>1000</td><td>1010</td></tr></table>
+<h3>6. Biner dan warna</h3>
+<p>Di Level 1, angka <b>0</b> diwarnai <b>hitam</b> dan angka <b>1</b> diwarnai <b>putih</b>. Cara ini mirip layar komputer: piksel mati gelap, piksel menyala terang.</p>
+<div class="tip">💡 <b>Tips:</b> kerjakan dari kanan ke kiri dan perhatikan nilai tempat setiap digit.</div>
+</div>`;
 
 /* ===== State ===== */
 let S,timer,cur=[];
@@ -114,14 +139,14 @@ function hud(){const h=$('hud');h.classList.toggle('hide',!S.t0);if(!S.t0)return
  $('hN').textContent='👤 '+S.name;$('hL').textContent='Level '+(S.l+1);
  $('hS').innerHTML='⭐ Skor Level: <b>'+S.score[S.l]+'</b> · Total: <b>'+S.score.reduce((a,b)=>a+b,0)+'</b>';$('hH').textContent='❤️'.repeat(S.lives)+'🖤'.repeat(3-S.lives);
  $('pg').style.width=(S.qs.length?S.i/S.qs.length*100:0)+'%'}
-function levelChips(){return `<div class="lv">${LEVELS.map((L,i)=>`<div class="${i<=S.unlocked?'on':''}">${i<=S.unlocked?(i<S.unlocked?'✅':'▶️'):'🔒'}<br>Level ${i+1}<br><small>${L.name}</small></div>`).join('')}</div>`}
+function levelChips(){const IC=['🎨','🧮','🚀'];return `<div class="lv">${LEVELS.map((L,i)=>`<div class="c${i}${i>S.unlocked?' lk':''}${i===S.unlocked?' cur':''}"><span class="ic">${i>S.unlocked?'🔒':IC[i]}</span><b>Level ${i+1}</b><small>${L.name}</small>${i<S.unlocked?'<i class="st">⭐</i>':''}</div>`).join('')}</div>`}
 function modal(html){const m=document.createElement('div');m.style.cssText='position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:16px;z-index:9';m.innerHTML=`<div class="card" style="max-width:480px;max-height:85vh;overflow:auto">${html}<div class="c"><button class="btn">Tutup</button></div></div>`;m.querySelector('button').onclick=()=>m.remove();document.body.appendChild(m)}
 
 /* ===== Layar ===== */
 function home(){clearInterval(timer);fresh();hud();
  app.innerHTML=`<div class="card"><div class="c mono" style="font-size:2.6rem;letter-spacing:.15em;color:var(--ac)">0101</div><h1>Binary Challenge</h1><p class="c mu">Petualangan Menguasai Bilangan Biner</p>
  <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>${levelChips()}
- <input class="in" id="nm" maxlength="16" placeholder="Nama pemain" style="font-size:1.1rem;letter-spacing:0;font-family:Poppins">
+ <input class="in" id="nm" maxlength="16" placeholder="Nama pemain" style="font-size:1.1rem;letter-spacing:0;font-family:Nunito">
  <div class="err" id="er"></div><div class="c"><button class="btn" onclick="startGame()">🚀 Mulai Game</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div></div>`}
 function startGame(){const n=$('nm').value.trim();if(!n){$('er').textContent='Isi nama pemain dulu ya!';return}S.name=n;S.t0=Date.now();intro()}
 function intro(){clearInterval(timer);const L=LEVELS[S.l];hud();
@@ -171,6 +196,8 @@ function final(){const tot=S.score.reduce((a,b)=>a+b,0),ok=S.ok.reduce((a,b)=>a+
  app.innerHTML=`<div class="card c"><div style="font-size:3rem">🏆</div><h2>Selamat! Kamu telah menyelesaikan Binary Challenge!</h2>
  <table class="res" style="text-align:left"><tr><td>Nama pemain</td><td>${S.name.replace(/</g,'&lt;')}</td></tr><tr><td>Skor Level 1</td><td>${S.score[0]}</td></tr><tr><td>Skor Level 2</td><td>${S.score[1]}</td></tr><tr><td>Skor Level 3</td><td>${S.score[2]}</td></tr><tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Waktu bermain</td><td>${tm}</td></tr><tr><td>Akurasi</td><td>${pc}%</td></tr></table>
  <h2 style="color:var(--ac)">🎖️ ${pr}</h2><button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`}
+(function(){const T=['0','1','0','1','01','10','0101','1010','1101','0011','</>','{ }','1+1'],C=['#ff4fa3','#ff9f1a','#12c4a0','#7c5cff','#2b9cf5','#7bc61a','#f43f5e','#ffc400'],b=$('bg');
+ for(let i=0;i<48;i++){const e=document.createElement('span');e.textContent=T[rnd(0,T.length-1)];e.style.cssText=`left:${rnd(-2,96)}%;top:${rnd(-2,96)}%;font-size:${rnd(18,46)}px;color:${C[rnd(0,C.length-1)]};--r:${rnd(-25,25)}deg;animation-delay:-${rnd(0,70)/10}s;animation-duration:${rnd(60,110)/10}s`;b.appendChild(e)}})();
 home();
 </script>
 </body>
