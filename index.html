@@ -558,6 +558,35 @@ td {
 .easy-swatch.light {
   background: #fff
 }
+.easy-sequence {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  direction: ltr
+}
+.easy-sequence-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 44px;
+  border: 2px solid var(--bd);
+  border-radius: 8px;
+  font: 700 1.45rem Fredoka,Nunito,sans-serif
+}
+.easy-sequence-tile.digit {
+  background: var(--bg);
+  color: var(--ac)
+}
+.easy-sequence-tile.dark {
+  background: #000;
+  border-color: #000
+}
+.easy-sequence-tile.light {
+  background: #fff;
+  border-color: var(--tx)
+}
 .easy-stimulus-label {
   font-weight: 800;
   font-size: 1.15rem
@@ -576,7 +605,7 @@ td {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  max-width: 220px;
+  max-width: 280px;
   min-height: 132px;
   padding: 14px;
   border: 3px solid var(--bd);
@@ -609,6 +638,47 @@ td {
   color: var(--ac);
   font-size: 2.6rem;
   line-height: 1
+}
+.easy-bits-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  justify-content: center;
+  width: 100%;
+  max-width: 336px;
+  gap: 12px;
+  margin: 18px auto
+}
+.easy-bit-column {
+  display: grid;
+  gap: 7px;
+  text-align: center
+}
+.easy-bit-place {
+  color: var(--mu);
+  font: 700 1.25rem Fredoka,Nunito,sans-serif
+}
+.easy-bit-toggle {
+  min-height: 76px;
+  border: 3px solid var(--bd);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ac);
+  font: 700 2rem Fredoka,Nunito,sans-serif;
+  cursor: pointer;
+  touch-action: manipulation
+}
+.easy-bit-toggle.is-one {
+  border-color: var(--ok);
+  background: #f0fdf4;
+  color: var(--ok)
+}
+.easy-bit-toggle:focus-visible {
+  outline: 3px solid var(--ac);
+  outline-offset: 3px
+}
+.easy-target {
+  color: var(--ac);
+  font: 700 2.5rem Fredoka,Nunito,sans-serif
 }
 .recap-list {
   display: grid;
@@ -657,6 +727,29 @@ body.mode-easy .easy-prompt {
   .easy-choice {
     flex-basis: 130px;
     min-height: 118px
+  }
+  .easy-stimulus {
+    flex-direction: column;
+    max-width: 100%;
+    gap: 8px;
+    padding: 12px
+  }
+  .easy-sequence {
+    gap: 3px
+  }
+  .easy-sequence-tile {
+    width: 32px;
+    height: 38px;
+    font-size: 1.25rem
+  }
+  .easy-stimulus-label {
+    font-size: 1rem
+  }
+  .easy-bits-grid {
+    gap: 8px
+  }
+  .easy-bit-toggle {
+    min-height: 68px
   }
 }
 </style>
@@ -750,74 +843,75 @@ const GEN = {
   },
 
   choices() {
-    return shuffle([
-      {
+    const colorName = bit => bit === '0' ? 'hitam' : 'putih';
+    const colorLabel = bits => `Urutan warna: ${[...bits].map(colorName).join(', ')}.`;
+    const binaryLabel = bits => `Urutan angka: ${[...bits].join(', ')}.`;
+    const changeOneBit = bits => {
+      const index = bits.indexOf('0');
+      return bits.slice(0, index) + '1' + bits.slice(index + 1)
+    };
+    const sequenceQuestions = [
+      { bits: '010', direction: 'to-color' },
+      { bits: '101', direction: 'to-color' },
+      { bits: '1100', direction: 'to-color' },
+      { bits: '0101', direction: 'to-binary' },
+      { bits: '100', direction: 'to-binary' }
+    ].map(({ bits, direction }) => {
+      const wrong = changeOneBit(bits);
+      const toColor = direction === 'to-color';
+      const optionValues = shuffle([bits, wrong]);
+      return {
         kind: 'choice',
-        prompt: 'Angka 0 cocok dengan warna apa?',
-        visual: { kind: 'number', value: '0', label: 'Angka 0' },
-        options: [
-          { value: 'black', kind: 'color', label: 'Hitam', swatch: 'dark' },
-          { value: 'white', kind: 'color', label: 'Putih', swatch: 'light' }
-        ],
-        ans: 'black',
-        exp: 'Angka 0 berpasangan dengan kotak hitam.'
-      },
-      {
-        kind: 'choice',
-        prompt: 'Kotak hitam cocok dengan angka berapa?',
-        visual: { kind: 'color', value: 'dark', label: 'Kotak hitam' },
-        options: [
-          { value: '0', kind: 'number', label: '0' },
-          { value: '1', kind: 'number', label: '1' }
-        ],
-        ans: '0',
-        exp: 'Kotak hitam berpasangan dengan angka 0.'
-      },
-      {
-        kind: 'choice',
-        prompt: 'Angka 1 cocok dengan warna apa?',
-        visual: { kind: 'number', value: '1', label: 'Angka 1' },
-        options: [
-          { value: 'white', kind: 'color', label: 'Putih', swatch: 'light' },
-          { value: 'black', kind: 'color', label: 'Hitam', swatch: 'dark' }
-        ],
-        ans: 'white',
-        exp: 'Angka 1 berpasangan dengan kotak putih.'
-      },
-      {
-        kind: 'choice',
-        prompt: 'Kotak putih cocok dengan angka berapa?',
-        visual: { kind: 'color', value: 'light', label: 'Kotak putih' },
-        options: [
-          { value: '1', kind: 'number', label: '1' },
-          { value: '0', kind: 'number', label: '0' }
-        ],
-        ans: '1',
-        exp: 'Kotak putih berpasangan dengan angka 1.'
-      },
-      {
-        kind: 'choice',
-        prompt: 'Pilih warna untuk angka 0.',
-        visual: { kind: 'number', value: '0', label: 'Angka 0' },
-        options: [
-          { value: 'white', kind: 'color', label: 'Putih', swatch: 'light' },
-          { value: 'black', kind: 'color', label: 'Hitam', swatch: 'dark' }
-        ],
-        ans: 'black',
-        exp: 'Ingat: angka 0 sama dengan kotak hitam.'
-      },
-      {
-        kind: 'choice',
-        prompt: 'Pilih angka untuk kotak putih.',
-        visual: { kind: 'color', value: 'light', label: 'Kotak putih' },
-        options: [
-          { value: '0', kind: 'number', label: '0' },
-          { value: '1', kind: 'number', label: '1' }
-        ],
-        ans: '1',
-        exp: 'Ingat: kotak putih sama dengan angka 1.'
+        prompt: toColor
+          ? 'Pilih urutan kotak yang cocok dengan angka-angka ini.'
+          : 'Pilih urutan angka yang cocok dengan warna kotak ini.',
+        visual: {
+          kind: toColor ? 'binary-sequence' : 'color-sequence',
+          value: bits,
+          label: toColor ? binaryLabel(bits) : colorLabel(bits)
+        },
+        options: optionValues.map(value => ({
+          value,
+          kind: 'sequence',
+          display: toColor ? 'color' : 'binary',
+          label: toColor ? colorLabel(value) : binaryLabel(value)
+        })),
+        ans: bits,
+        exp: `Ingat: 0 = hitam dan 1 = putih. ${binaryLabel(bits)} ${colorLabel(bits)}`
       }
-    ])
+    });
+    const targetValues = shuffle([1, 2, 3, 4, 5, 6, 7]).slice(0, 5);
+    const mediumQuestions = targetValues.map(n => {
+      const bits = n.toString(2).padStart(3, '0');
+      const activePlaces = [4, 2, 1].filter((place, index) => bits[index] === '1');
+      return {
+        kind: 'easy-bits',
+        n,
+        ans: bits,
+        prompt: `Nyalakan kotak bernilai 4, 2, atau 1 sampai jumlahnya menjadi ${n}.`,
+        exp: `Kotak yang menyala bernilai ${activePlaces.join(' dan ')}. ${activePlaces.join(' + ')} = ${n}.`
+      }
+    });
+    const valueQuestions = shuffle([1, 2, 3, 4, 5, 6, 7]).slice(0, 5).map(n => {
+      const bits = n.toString(2).padStart(3, '0');
+      const places = [4, 2, 1];
+      const parts = [...bits].map((bit, index) => bit === '1' ? places[index] : 0);
+      const other = n === 7 ? n - 1 : n + 1;
+      return {
+        kind: 'choice',
+        prompt: 'Berapa nilai urutan ini? Nilai kotaknya dari kiri: 4, 2, 1.',
+        visual: { kind: 'binary-sequence', value: bits, label: binaryLabel(bits) },
+        options: shuffle([String(n), String(other)]).map(value => ({
+          value,
+          kind: 'number',
+          label: value
+        })),
+        ans: String(n),
+        exp: `${binaryLabel(bits)} ${parts.join(' + ')} = ${n}.`
+      }
+    });
+
+    return [...shuffle(sequenceQuestions), ...shuffle(mediumQuestions), ...valueQuestions]
   },
 
  bits(lo, hi) {
@@ -1081,7 +1175,7 @@ function home() {
  <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>
  <fieldset class="mode-select"><legend>Pilih cara bermain</legend>
   <label class="mode-option"><input type="radio" name="gameMode" value="challenge" checked><span><b>Mode Tantangan</b><small>3 level, ada soal berhitung dan nyawa.</small></span></label>
-  <label class="mode-option"><input type="radio" name="gameMode" value="easy"><span><b>Mode Belajar</b><small>Pilihan besar, soal satu langkah, tanpa waktu dan nyawa. Nama boleh dikosongkan.</small></span></label>
+  <label class="mode-option"><input type="radio" name="gameMode" value="easy"><span><b>Mode Belajar</b><small>Soal bertahap, pilihan besar, tanpa waktu dan nyawa. Nama boleh dikosongkan.</small></span></label>
  </fieldset>
  <div id="levels-preview">${levelChips()}</div>
  <input class="in" id="nm" maxlength="16" placeholder="Nama pemain" style="font-size:1.1rem;letter-spacing:0;font-family:Nunito">
@@ -1109,7 +1203,7 @@ function startGame() {
 }
 function easyIntro() {
   hud();
-  app.innerHTML = `<div class="card c"><div class="mu">Mode Belajar</div><h2>Kita belajar pelan-pelan</h2><p>Jawab 6 soal dengan memilih gambar atau angka yang cocok.</p><p>Tidak ada hitung mundur dan tidak ada nyawa yang hilang. Kalau belum cocok, kita lihat jawabannya bersama.</p><button class="btn" onclick="startEasy()">Mulai Belajar</button><button class="btn g" onclick="home()">Kembali</button></div>`
+  app.innerHTML = `<div class="card c"><div class="mu">Mode Belajar</div><h2>Kita belajar pelan-pelan</h2><p>Jawab 15 soal: mencocokkan urutan angka dan warna, menyalakan kotak bernilai 4, 2, dan 1, lalu mengenal nilai urutan biner.</p><p>Tidak ada hitung mundur dan tidak ada nyawa yang hilang. Kalau belum cocok, kita lihat jawabannya bersama.</p><button class="btn" onclick="startEasy()">Mulai Belajar</button><button class="btn g" onclick="home()">Kembali</button></div>`
 }
 function startEasy() {
   S.l = 0;
@@ -1139,9 +1233,23 @@ function startLevel() {
   S.lives = 3;
   question()
 }
+function easySequence(value, display) {
+  const tiles = [...value].map(bit => {
+    if (display === 'binary') return `<span class="easy-sequence-tile digit" aria-hidden="true">${bit}</span>`;
+    const shade = bit === '0' ? 'dark' : 'light';
+    return `<span class="easy-sequence-tile ${shade}" aria-hidden="true"></span>`
+  }).join('');
+  return `<span class="easy-sequence" aria-hidden="true">${tiles}</span>`
+}
 function easyVisual(q) {
   if (q.visual.kind === 'number') {
     return `<span class="easy-number" aria-hidden="true">${q.visual.value}</span><span class="easy-stimulus-label">${q.visual.label}</span>`
+  }
+  if (q.visual.kind === 'binary-sequence') {
+    return `${easySequence(q.visual.value, 'binary')}<span class="easy-stimulus-label">${q.visual.label}</span>`
+  }
+  if (q.visual.kind === 'color-sequence') {
+    return `${easySequence(q.visual.value, 'color')}<span class="easy-stimulus-label">${q.visual.label}</span>`
   }
   const shade = q.visual.value === 'dark' ? 'dark' : 'light';
   return `<span class="easy-swatch ${shade}" aria-hidden="true"></span><span class="easy-stimulus-label">${q.visual.label}</span>`
@@ -1150,18 +1258,24 @@ function easyChoiceButton(option) {
   const spoken = option.kind === 'number' ? 'Angka '+option.label : option.label;
   const face = option.kind === 'number'
     ? `<span class="easy-choice-number" aria-hidden="true">${option.label}</span><span>${spoken}</span>`
-    : `<span class="easy-swatch ${option.swatch}" aria-hidden="true"></span><span>${spoken}</span>`;
+    : option.kind === 'sequence'
+      ? `${easySequence(option.value, option.display)}<span>${spoken}</span>`
+      : `<span class="easy-swatch ${option.swatch}" aria-hidden="true"></span><span>${spoken}</span>`;
   return `<button type="button" class="easy-choice" data-value="${option.value}" aria-label="${spoken}">${face}</button>`
 }
 function question() {
   clearInterval(timer);
   hud();
   const L = S.mode === 'easy'
-    ? { name: 'Mode Belajar', time: 0, pts: 10, hint: 'Angka 0 = hitam. Angka 1 = putih.' }
+    ? { name: 'Mode Belajar', time: 0, pts: 10, hint: 'Angka 0 = hitam dan angka 1 = putih. Nilai kotak dari kiri: 4, 2, 1.' }
     : LEVELS[S.l];
   const q = S.qs[S.i];
   let body;
   if (q.kind === 'choice') body = `<div class="easy-question"><p class="c easy-prompt" aria-live="polite">${q.prompt}</p><div class="easy-stimulus" role="img" aria-label="${q.visual.label}">${easyVisual(q)}</div><p class="c">Pilih salah satu jawaban.</p><div class="easy-choice-grid">${q.options.map(easyChoiceButton).join('')}</div><div class="err" id="er" aria-live="polite"></div></div>`;
+  else if (q.kind === 'easy-bits') {
+    const places = [4, 2, 1];
+    body = `<div class="c"><p class="easy-prompt">${q.prompt}</p><div class="easy-bits-grid">${places.map((place, index) => `<div class="easy-bit-column"><span class="easy-bit-place">Nilai ${place}</span><button type="button" class="easy-bit-toggle" data-index="${index}" data-place="${place}" aria-label="Nilai tempat ${place}, angka 0, mati" aria-pressed="false">0</button></div>`).join('')}</div><p>Nilai yang dicari:</p><div class="easy-target">${q.n}</div><p class="mu">Ketuk kotak untuk mengganti 0 dan 1.</p><div class="c"><button class="btn" onclick="ans(cur.join(''))">Periksa Jawaban</button></div></div>`
+  }
   else if (q.kind === 'color') body = `<div class="c mu">Ketuk tiap kotak untuk mewarnainya.<br>0 = <b>HITAM</b> &nbsp;·&nbsp; 1 = <b>PUTIH</b></div><div class="row" style="margin:16px 0">${[...q.d].map((c,i)=>`<div class="col"><div class="dg">${c}</div><button class="sq n" data-i="${i}" aria-label="Kotak ${i+1}"></button></div>`).join('')}</div><div class="err" id="er"></div><div class="c"><button class="btn" onclick="checkColor()">Periksa</button></div>`;
   else if (q.kind === 'bits') {
     const pv = [128, 64, 32, 16, 8, 4, 2, 1];
@@ -1171,6 +1285,17 @@ function question() {
   app.innerHTML = `<div class="card"><div class="hud"><span class="mu" aria-live="polite">Soal ${S.i+1} / ${S.qs.length}</span><button class="btn g" style="padding:6px 12px" onclick="modal('<h2>💡 Petunjuk</h2><p>${L.hint}</p>')">💡 Lihat Petunjuk</button></div>${L.time?'<div class="bar t"><i id="tb" style="width:100%"></i></div>':''}${body}<div id="fb" aria-live="polite"></div></div>`;
   if (q.kind === 'choice') {
     document.querySelectorAll('.easy-choice').forEach(b => b.onclick = () => ans(b.dataset.value))
+  }
+  if (q.kind === 'easy-bits') {
+    cur = Array(3).fill('0');
+    document.querySelectorAll('.easy-bit-toggle').forEach(b => b.onclick = () => {
+      const i = Number(b.dataset.index);
+      cur[i] = cur[i] === '1' ? '0' : '1';
+      b.textContent = cur[i];
+      b.classList.toggle('is-one', cur[i] === '1');
+      b.setAttribute('aria-pressed', String(cur[i] === '1'));
+      b.setAttribute('aria-label', `Nilai tempat ${b.dataset.place}, angka ${cur[i]}, ${cur[i] === '1' ? 'menyala' : 'mati'}`)
+    })
   }
   if (q.kind === 'color') {
     cur = Array(q.d.length).fill(null);
@@ -1253,6 +1378,17 @@ function ans(v) {
     });
     head = good ? 'Tepat! Kamu hebat.' : 'Belum cocok. Tidak apa-apa, kita belajar bersama.'
   }
+  else if (q.kind === 'easy-bits') {
+    document.querySelectorAll('.easy-bit-toggle').forEach((b, i) => {
+      const answer = q.ans[i];
+      b.textContent = answer;
+      b.classList.toggle('is-one', answer === '1');
+      b.style.borderColor = cur[i] === answer ? 'var(--ok)' : 'var(--no)';
+      b.setAttribute('aria-pressed', String(answer === '1'));
+      b.setAttribute('aria-label', `Nilai tempat ${b.dataset.place}, angka ${answer}, ${answer === '1' ? 'menyala' : 'mati'}`)
+    });
+    head = good ? 'Tepat! Kotak-kotaknya sudah sesuai.' : 'Belum cocok. Kita lihat susunan yang benar bersama.'
+  }
   else if (q.kind === 'color') {
     document.querySelectorAll('.sq').forEach((b, i) => {
       const t = q.d[i];
@@ -1275,7 +1411,7 @@ function ans(v) {
   else if (good) head = 'Benar! Kerja bagus!';
   else head = (v === null ? '⏰ Waktu habis! ': '')+`Jawaban yang benar: ${q.ans}`;
   const over = S.mode !== 'easy' && S.lives <= 0, last = S.i === S.qs.length - 1;
-  document.querySelectorAll('.card button.btn,.card input,.sq,.bt,.easy-choice').forEach(e => {
+  document.querySelectorAll('.card button.btn,.card input,.sq,.bt,.easy-choice,.easy-bit-toggle').forEach(e => {
     if (!e.classList.contains('g')) e.disabled = true
   });
   const feedbackClass = good ? 'ok' : S.mode === 'easy' ? 'learn' : 'no';
