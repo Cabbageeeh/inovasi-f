@@ -83,7 +83,7 @@ body {
   font-weight: 700;
   line-height: 1;
   letter-spacing: .04em;
-  opacity: var(--opacity,.2);
+  opacity: var(--opacity,.55);
   transform: rotate(var(--r));
   animation: fl 9s ease-in-out infinite alternate
 }
@@ -100,7 +100,7 @@ body {
 }
 @keyframes fl {
   to {
-    transform: translateY(-10px) rotate(calc(var(--r) + 7deg))
+    transform: translate(18px,-32px) rotate(calc(var(--r) + 14deg))
   }
 }
 @media (prefers-reduced-motion:reduce) {
@@ -1492,14 +1492,14 @@ function final() {
     ['2²', 'power'], ['2³', 'power'], ['+', 'symbol'], ['−', 'symbol'],
     ['×', 'symbol'], ['÷', 'symbol'], ['=', 'symbol'], ['∑', 'symbol']
   ];
-  const C = ['#2563eb', '#0891b2', '#6d5dfc', '#059669', '#d97706'], b = $('bg');
-  for (let i = 0; i < 36; i++) {
+  const C = ['#2563eb', '#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#f97316', '#ef4444'], b = $('bg');
+  for (let i = 0; i < 44; i++) {
     const [label, kind] = T[rnd(0, T.length - 1)];
     const e = document.createElement('span');
     e.className = kind;
     e.textContent = label;
     const size = kind === 'symbol' ? rnd(22, 34) : kind === 'binary' ? rnd(17, 25) : rnd(20, 32);
-    e.style.cssText = `left:${rnd(-2,96)}%;top:${rnd(-2,96)}%;font-size:${size}px;color:${C[rnd(0,C.length-1)]};--r:${rnd(-14,14)}deg;--opacity:${rnd(11,20)/100};animation-delay:-${rnd(0,70)/10}s;animation-duration:${rnd(70,110)/10}s`;
+    e.style.cssText = `left:${rnd(-2,96)}%;top:${rnd(-2,96)}%;font-size:${size}px;color:${C[i % C.length]};--r:${rnd(-14,14)}deg;--opacity:${rnd(45,65)/100};animation-delay:-${rnd(0,100)/10}s;animation-duration:${rnd(60,100)/10}s`;
     b.appendChild(e)
   }
 
