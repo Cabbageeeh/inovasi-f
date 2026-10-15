@@ -55,19 +55,52 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background: #fff
+  background:
+    radial-gradient(ellipse at 12% 12%,rgba(91,155,255,.14),transparent 38%),
+    radial-gradient(ellipse at 88% 78%,rgba(124,92,255,.1),transparent 36%),
+    linear-gradient(145deg,#f8fbff 0%,#eef5ff 54%,#fbfdff 100%)
+}
+#bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(37,99,235,.16) 1px,transparent 1.5px);
+  background-size: 26px 26px;
+  opacity: .35
 }
 #bg span {
   position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 2px 9px;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+  background: rgba(255,255,255,.72);
+  box-shadow: 0 5px 14px rgba(37,99,235,.08);
   font-family: Fredoka,Nunito,sans-serif;
   font-weight: 700;
-  opacity: .7;
+  line-height: 1;
+  letter-spacing: .04em;
+  opacity: var(--opacity,.2);
   transform: rotate(var(--r));
-  animation: fl 7s ease-in-out infinite alternate
+  animation: fl 9s ease-in-out infinite alternate
+}
+#bg span.symbol {
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 50%;
+  font-size: 1.7rem
+}
+#bg span.power {
+  min-width: 42px;
+  border-radius: 16px;
+  font-size: 1.2rem
 }
 @keyframes fl {
   to {
-    transform: translateY(-20px) rotate(calc(var(--r) + 12deg))
+    transform: translateY(-10px) rotate(calc(var(--r) + 7deg))
   }
 }
 @media (prefers-reduced-motion:reduce) {
@@ -711,7 +744,11 @@ td {
   color: var(--tx)
 }
 body.mode-easy #bg {
-  display: none
+  opacity: .4
+}
+body.mode-easy #bg span {
+  animation: none;
+  opacity: .1
 }
 body.mode-easy #levels-preview {
   display: none
@@ -1455,11 +1492,21 @@ function final() {
  <button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="showRecap()">📊 Semua Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div>`
 }
 (function() {
-  const T = ['0', '1', '0', '1', '01', '10', '0101', '1010', '1101', '0011', '</>', '{ }', '1+1'], C = ['#ff4fa3', '#ff9f1a', '#12c4a0', '#7c5cff', '#2b9cf5', '#7bc61a', '#f43f5e', '#ffc400'], b = $('bg');
-  for (let i = 0; i < 48; i++) {
+  const T = [
+    ['0', 'bit'], ['1', 'bit'], ['01', 'binary'], ['10', 'binary'],
+    ['0101', 'binary'], ['1010', 'binary'], ['1101', 'binary'], ['0011', 'binary'],
+    ['0110', 'binary'], ['1001', 'binary'], ['2⁰', 'power'], ['2¹', 'power'],
+    ['2²', 'power'], ['2³', 'power'], ['+', 'symbol'], ['−', 'symbol'],
+    ['×', 'symbol'], ['÷', 'symbol'], ['=', 'symbol'], ['∑', 'symbol']
+  ];
+  const C = ['#2563eb', '#0891b2', '#6d5dfc', '#059669', '#d97706'], b = $('bg');
+  for (let i = 0; i < 36; i++) {
+    const [label, kind] = T[rnd(0, T.length - 1)];
     const e = document.createElement('span');
-    e.textContent = T[rnd(0, T.length - 1)];
-    e.style.cssText = `left:${rnd(-2,96)}%;top:${rnd(-2,96)}%;font-size:${rnd(18,46)}px;color:${C[rnd(0,C.length-1)]};--r:${rnd(-25,25)}deg;animation-delay:-${rnd(0,70)/10}s;animation-duration:${rnd(60,110)/10}s`;
+    e.className = kind;
+    e.textContent = label;
+    const size = kind === 'symbol' ? rnd(22, 34) : kind === 'binary' ? rnd(17, 25) : rnd(20, 32);
+    e.style.cssText = `left:${rnd(-2,96)}%;top:${rnd(-2,96)}%;font-size:${size}px;color:${C[rnd(0,C.length-1)]};--r:${rnd(-14,14)}deg;--opacity:${rnd(11,20)/100};animation-delay:-${rnd(0,70)/10}s;animation-duration:${rnd(70,110)/10}s`;
     b.appendChild(e)
   }
 
