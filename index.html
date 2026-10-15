@@ -718,6 +718,14 @@ td {
   gap: 12px;
   margin: 16px 0
 }
+.recap-mode + .recap-mode {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bd)
+}
+.recap-mode > h3 {
+  margin: 0
+}
 .recap-entry {
   padding: 14px;
   border: 1px solid var(--bd);
@@ -1095,6 +1103,8 @@ const MATERI = `<div class="mt">
 
 let S, timer, cur = [];
 const HISTORY_KEY = 'binaryChallengeScoreHistory';
+const HISTORY_TTL_MS = 24 * 60 * 60 * 1000;
+let historyExpiryTimer;
 function fresh() {
   S = {
     name: '',
@@ -1125,10 +1135,34 @@ function escapeHTML(value) {
     "'": '&#39;'
   })[char])
 }
+function scheduleHistoryCleanup(history) {
+  clearTimeout(historyExpiryTimer);
+  if (!history.length) return;
+
+  const nextExpiry = history.reduce((earliest, item) =>
+    Math.min(earliest, Number(item.createdAt) + HISTORY_TTL_MS), Infinity);
+  historyExpiryTimer = setTimeout(() => {
+    readHistory();
+    if (app.querySelector('[data-score-recap]')) showRecap();
+  }, Math.max(0, nextExpiry - Date.now()) + 25)
+}
 function readHistory() {
   try {
     const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-    return Array.isArray(saved) ? saved.filter(item => item && typeof item === 'object') : []
+    if (!Array.isArray(saved)) return [];
+
+    const now = Date.now();
+    const history = saved.filter(item => {
+      if (!item || typeof item !== 'object') return false;
+      const createdAt = Number(item.createdAt);
+      const age = now - createdAt;
+      return Number.isFinite(createdAt) && age >= 0 && age < HISTORY_TTL_MS &&
+        (item.mode === 'challenge' || item.mode === 'easy');
+    });
+
+    if (history.length !== saved.length) localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    scheduleHistoryCleanup(history);
+    return history
   }
   catch (e) {
     return []
@@ -1141,10 +1175,14 @@ function saveResult() {
   const result = {
     name: S.name,
     score: S.score.reduce((a, b) => a + b, 0),
-    accuracy: answered ? Math.round(correct / answered * 100) : 0
+    accuracy: answered ? Math.round(correct / answered * 100) : 0,
+    mode: S.mode,
+    createdAt: Date.now()
   };
   try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify([result, ...readHistory()].slice(0, 10)))
+    const history = [result, ...readHistory()];
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    scheduleHistoryCleanup(history)
   }
   catch (e) {
     // Rekap sesi ini tetap tampil walau penyimpanan browser tidak tersedia.
@@ -1152,11 +1190,15 @@ function saveResult() {
 }
 function showRecap() {
   const history = readHistory();
-  const entries = history.length ? `<div class="recap-list">${history.map(item => {
+  const renderMode = (mode, title) => {
+    const entries = history.filter(item => item.mode === mode);
+    const list = entries.length ? `<div class="recap-list">${entries.map(item => {
     const number = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
     return `<article class="recap-entry"><h3>${escapeHTML(item.name || 'Nama belum dicatat')}</h3><dl><dt>Skor</dt><dd>${number(item.score)}</dd><dt>Akurasi</dt><dd>${number(item.accuracy)}%</dd></dl></article>`
-  }).join('')}</div>` : '<p class="c">Belum ada nilai tersimpan. Selesaikan satu permainan untuk melihat rekapnya.</p>';
-  app.innerHTML = `<div class="card"><h2 class="c">📊 Rekap Nilai</h2><p class="c mu">Maksimal 10 permainan terakhir. Nama sesi lama yang belum tersimpan ditampilkan sebagai “Nama belum dicatat”. Rekap tersimpan di browser pada perangkat ini.</p>${entries}<div class="c"><button class="btn" onclick="home()">Kembali</button></div></div>`
+    }).join('')}</div>` : `<p class="c mu">Belum ada nilai ${title} dalam 24 jam terakhir.</p>`;
+    return `<section class="recap-mode"><h3>${title}</h3>${list}</section>`
+  };
+  app.innerHTML = `<div class="card" data-score-recap><h2 class="c">📊 Rekap Nilai</h2><p class="c mu">Rekap tersimpan di browser pada perangkat ini dan dihapus otomatis setelah 24 jam. Jika browser ditutup, nilai kedaluwarsa dibersihkan saat halaman dibuka kembali.</p>${renderMode('challenge', 'Mode Tantangan')}${renderMode('easy', 'Mode Belajar')}<div class="c"><button class="btn" onclick="home()">Kembali</button></div></div>`
 }
 function hud() {
   const h = $('hud');
@@ -1188,6 +1230,7 @@ function home() {
   clearInterval(timer);
   document.body.classList.remove('mode-easy');
   fresh();
+  readHistory();
   hud();
   app.innerHTML = `<div class="card"><div class="c mono" style="font-size:2.6rem;letter-spacing:.15em;color:var(--ac)">0101</div><h1>Binary Challenge</h1><p class="c mu">Petualangan Menguasai Bilangan Biner</p>
  <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>
