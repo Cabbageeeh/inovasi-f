@@ -1109,7 +1109,7 @@ function saveResult() {
   S.saved = true;
   const correct = S.ok.reduce((a, b) => a + b, 0), answered = correct + S.bad.reduce((a, b) => a + b, 0);
   const result = {
-    name: S.name || 'Pemain',
+    name: S.name,
     score: S.score.reduce((a, b) => a + b, 0),
     accuracy: answered ? Math.round(correct / answered * 100) : 0
   };
@@ -1124,9 +1124,9 @@ function showRecap() {
   const history = readHistory();
   const entries = history.length ? `<div class="recap-list">${history.map(item => {
     const number = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
-    return `<article class="recap-entry"><h3>${escapeHTML(item.name || 'Pemain')}</h3><dl><dt>Skor</dt><dd>${number(item.score)}</dd><dt>Akurasi</dt><dd>${number(item.accuracy)}%</dd></dl></article>`
+    return `<article class="recap-entry"><h3>${escapeHTML(item.name || 'Nama belum dicatat')}</h3><dl><dt>Skor</dt><dd>${number(item.score)}</dd><dt>Akurasi</dt><dd>${number(item.accuracy)}%</dd></dl></article>`
   }).join('')}</div>` : '<p class="c">Belum ada nilai tersimpan. Selesaikan satu permainan untuk melihat rekapnya.</p>';
-  app.innerHTML = `<div class="card"><h2 class="c">📊 Rekap Nilai</h2><p class="c mu">Maksimal 10 permainan terakhir. Rekap hanya tersimpan di browser pada perangkat ini.</p>${entries}<div class="c"><button class="btn" onclick="home()">Kembali</button></div></div>`
+  app.innerHTML = `<div class="card"><h2 class="c">📊 Rekap Nilai</h2><p class="c mu">Maksimal 10 permainan terakhir. Nama sesi lama yang belum tersimpan ditampilkan sebagai “Nama belum dicatat”. Rekap tersimpan di browser pada perangkat ini.</p>${entries}<div class="c"><button class="btn" onclick="home()">Kembali</button></div></div>`
 }
 function hud() {
   const h = $('hud');
@@ -1163,10 +1163,10 @@ function home() {
  <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>
  <fieldset class="mode-select"><legend>Pilih cara bermain</legend>
   <label class="mode-option"><input type="radio" name="gameMode" value="challenge" checked><span><b>Mode Tantangan</b><small>3 level, ada soal berhitung dan nyawa.</small></span></label>
-  <label class="mode-option"><input type="radio" name="gameMode" value="easy"><span><b>Mode Belajar</b><small>Soal bertahap, pilihan besar, tanpa waktu dan nyawa. Nama boleh dikosongkan.</small></span></label>
+  <label class="mode-option"><input type="radio" name="gameMode" value="easy"><span><b>Mode Belajar</b><small>Soal bertahap, pilihan besar, tanpa waktu dan nyawa. Nama diperlukan untuk rekap.</small></span></label>
  </fieldset>
  <div id="levels-preview">${levelChips()}</div>
- <input class="in" id="nm" maxlength="16" placeholder="Nama pemain" style="font-size:1.1rem;letter-spacing:0;font-family:Nunito">
+ <label for="nm" class="c mu" style="display:block;font-weight:800;margin:12px 0 4px">Nama pemain</label><input class="in" id="nm" maxlength="16" autocomplete="name" placeholder="Masukkan nama pemain" required style="font-size:1.1rem;letter-spacing:0;font-family:Nunito">
  <div class="err" id="er" aria-live="polite"></div><div class="c"><button class="btn" onclick="startGame()">🚀 Mulai Game</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="showRecap()">📊 Rekap Nilai</button></div></div>`
   document.querySelectorAll('input[name="gameMode"]').forEach(input => {
     input.onchange = () => document.body.classList.toggle('mode-easy', input.value === 'easy' && input.checked)
@@ -1175,11 +1175,12 @@ function home() {
 function startGame() {
   const n = $('nm').value.trim();
   const mode = document.querySelector('input[name="gameMode"]:checked')?.value || 'challenge';
-  if (!n && mode !== 'easy') {
-    $('er').textContent = 'Isi nama pemain dulu ya!';
+  if (!n) {
+    $('er').textContent = 'Masukkan nama pemain dulu agar namanya muncul di rekap.';
+    $('nm').focus();
     return
   }
-  S.name = n || 'Pemain';
+  S.name = n;
   S.mode = mode;
   S.t0 = Date.now();
   if (S.mode === 'easy') {
