@@ -480,6 +480,185 @@ td {
 .res td:first-child {
   font-family: Nunito
 }
+.mode-select {
+  margin: 18px 0;
+  padding: 12px;
+  border: 1px solid var(--bd);
+  border-radius: 16px
+}
+.mode-select legend {
+  padding: 0 8px;
+  font-weight: 800;
+  font-family: Fredoka,Nunito,sans-serif
+}
+.mode-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer
+}
+.mode-option + .mode-option {
+  margin-top: 6px
+}
+.mode-option:focus-within {
+  outline: 3px solid var(--ac);
+  outline-offset: 2px
+}
+.mode-option input[type="radio"] {
+  width: 24px;
+  height: 24px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--ac)
+}
+.mode-option span {
+  display: flex;
+  flex-direction: column;
+  text-align: left
+}
+.mode-option input:checked + span b {
+  color: var(--ac)
+}
+.mode-option small {
+  color: var(--mu);
+  font-size: .9rem
+}
+.easy-stimulus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: fit-content;
+  min-width: 180px;
+  min-height: 104px;
+  margin: 14px auto;
+  padding: 14px 24px;
+  border: 2px solid var(--bd);
+  border-radius: 18px;
+  background: #fff
+}
+.easy-number {
+  color: var(--ac);
+  font: 700 3.6rem/1 Fredoka,Nunito,sans-serif
+}
+.easy-swatch {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--tx);
+  border-radius: 12px;
+  flex: none
+}
+.easy-swatch.dark {
+  background: #000;
+  border-color: #000
+}
+.easy-swatch.light {
+  background: #fff
+}
+.easy-stimulus-label {
+  font-weight: 800;
+  font-size: 1.15rem
+}
+.easy-choice-grid {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 14px 0
+}
+.easy-choice {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 220px;
+  min-height: 132px;
+  padding: 14px;
+  border: 3px solid var(--bd);
+  border-radius: 18px;
+  background: #fff;
+  color: var(--tx);
+  font: 700 1.15rem Fredoka,Nunito,sans-serif;
+  cursor: pointer;
+  transition: border-color .15s,transform .15s
+}
+.easy-choice:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--ac)
+}
+.easy-choice:focus-visible {
+  outline: 3px solid var(--ac);
+  outline-offset: 3px
+}
+.easy-choice:disabled {
+  cursor: default
+}
+.easy-choice.correct {
+  border-color: var(--ok);
+  background: #f0fdf4
+}
+.easy-choice.selected-wrong {
+  border-color: var(--ac)
+}
+.easy-choice-number {
+  color: var(--ac);
+  font-size: 2.6rem;
+  line-height: 1
+}
+.recap-list {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0
+}
+.recap-entry {
+  padding: 14px;
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  background: var(--bg)
+}
+.recap-entry h3,
+.recap-entry p {
+  margin: 0 0 6px
+}
+.recap-entry dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  margin: 8px 0 0
+}
+.recap-entry dd {
+  margin: 0;
+  font-weight: 800
+}
+.fb.learn {
+  border-color: var(--bd);
+  background: #eff6ff;
+  color: var(--tx)
+}
+body.mode-easy #bg {
+  display: none
+}
+body.mode-easy #levels-preview {
+  display: none
+}
+body.mode-easy .card {
+  animation: none
+}
+body.mode-easy .easy-prompt {
+  font-size: 1.25rem;
+  font-weight: 800
+}
+@media (max-width:520px) {
+  .easy-choice {
+    flex-basis: 130px;
+    min-height: 118px
+  }
+}
 </style>
 </head>
 <body>
@@ -489,7 +668,7 @@ td {
   <div class="hud"><span id="hN"></span><span id="hL">Level 1</span><span id="hS">⭐ 0</span><span id="hH">❤️❤️❤️</span><button class="btn g" id="snd" style="padding:6px 12px" onclick="toggleSnd()">🔊</button></div>
   <div class="bar"><i id="pg"></i></div>
  </div>
- <div id="app"></div>
+ <main id="app"></main>
 </div>
 <script>
 /* ===== Utilitas ===== */
@@ -568,6 +747,77 @@ const GEN = {
       exp: ''
     }
 
+  },
+
+  choices() {
+    return shuffle([
+      {
+        kind: 'choice',
+        prompt: 'Angka 0 cocok dengan warna apa?',
+        visual: { kind: 'number', value: '0', label: 'Angka 0' },
+        options: [
+          { value: 'black', kind: 'color', label: 'Hitam', swatch: 'dark' },
+          { value: 'white', kind: 'color', label: 'Putih', swatch: 'light' }
+        ],
+        ans: 'black',
+        exp: 'Angka 0 berpasangan dengan kotak hitam.'
+      },
+      {
+        kind: 'choice',
+        prompt: 'Kotak hitam cocok dengan angka berapa?',
+        visual: { kind: 'color', value: 'dark', label: 'Kotak hitam' },
+        options: [
+          { value: '0', kind: 'number', label: '0' },
+          { value: '1', kind: 'number', label: '1' }
+        ],
+        ans: '0',
+        exp: 'Kotak hitam berpasangan dengan angka 0.'
+      },
+      {
+        kind: 'choice',
+        prompt: 'Angka 1 cocok dengan warna apa?',
+        visual: { kind: 'number', value: '1', label: 'Angka 1' },
+        options: [
+          { value: 'white', kind: 'color', label: 'Putih', swatch: 'light' },
+          { value: 'black', kind: 'color', label: 'Hitam', swatch: 'dark' }
+        ],
+        ans: 'white',
+        exp: 'Angka 1 berpasangan dengan kotak putih.'
+      },
+      {
+        kind: 'choice',
+        prompt: 'Kotak putih cocok dengan angka berapa?',
+        visual: { kind: 'color', value: 'light', label: 'Kotak putih' },
+        options: [
+          { value: '1', kind: 'number', label: '1' },
+          { value: '0', kind: 'number', label: '0' }
+        ],
+        ans: '1',
+        exp: 'Kotak putih berpasangan dengan angka 1.'
+      },
+      {
+        kind: 'choice',
+        prompt: 'Pilih warna untuk angka 0.',
+        visual: { kind: 'number', value: '0', label: 'Angka 0' },
+        options: [
+          { value: 'white', kind: 'color', label: 'Putih', swatch: 'light' },
+          { value: 'black', kind: 'color', label: 'Hitam', swatch: 'dark' }
+        ],
+        ans: 'black',
+        exp: 'Ingat: angka 0 sama dengan kotak hitam.'
+      },
+      {
+        kind: 'choice',
+        prompt: 'Pilih angka untuk kotak putih.',
+        visual: { kind: 'color', value: 'light', label: 'Kotak putih' },
+        options: [
+          { value: '0', kind: 'number', label: '0' },
+          { value: '1', kind: 'number', label: '1' }
+        ],
+        ans: '1',
+        exp: 'Ingat: kotak putih sama dengan angka 1.'
+      }
+    ])
   },
 
  bits(lo, hi) {
@@ -720,9 +970,11 @@ const MATERI = `<div class="mt">
 /* ===== State ===== */
 
 let S, timer, cur = [];
+const HISTORY_KEY = 'binaryChallengeScoreHistory';
 function fresh() {
   S = {
     name: '',
+    mode: 'challenge',
     l: 0,
     i: 0,
     qs: [],
@@ -733,19 +985,77 @@ function fresh() {
     bonus: [0, 0, 0],
     unlocked: 0,
     t0: 0,
-    done: false
+    done: false,
+    saved: false
   }
 
 }
 fresh();
 const app = $('app');
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char])
+}
+function readHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return Array.isArray(saved) ? saved.filter(item => item && typeof item === 'object') : []
+  }
+  catch (e) {
+    return []
+  }
+}
+function saveResult() {
+  if (S.saved) return;
+  S.saved = true;
+  const correct = S.ok.reduce((a, b) => a + b, 0), needsPractice = S.bad.reduce((a, b) => a + b, 0), answered = correct + needsPractice;
+  const result = {
+    date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+    mode: S.mode,
+    score: S.score.reduce((a, b) => a + b, 0),
+    correct,
+    needsPractice,
+    accuracy: answered ? Math.round(correct / answered * 100) : 0,
+    duration: Math.max(0, Math.round((Date.now() - S.t0) / 1000)),
+    levelScores: S.mode === 'easy' ? [S.score[0]] : S.score.slice(0, S.l + 1)
+  };
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify([result, ...readHistory()].slice(0, 10)))
+  }
+  catch (e) {
+    // Rekap sesi ini tetap tampil walau penyimpanan browser tidak tersedia.
+  }
+}
+function showRecap() {
+  const history = readHistory();
+  const entries = history.length ? `<div class="recap-list">${history.map((item, index) => {
+    const mode = item.mode === 'easy' ? 'Mode Belajar' : 'Mode Tantangan';
+    const number = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+    const scores = Array.isArray(item.levelScores)
+      ? item.mode === 'easy'
+        ? `Skor Mode Belajar: ${number(item.levelScores[0])}`
+        : item.levelScores.map((score, i) => `Level ${i+1}: ${number(score)}`).join(' · ')
+      : '';
+    const duration = number(item.duration), minutes = Math.floor(duration / 60), seconds = duration % 60;
+    return `<article class="recap-entry"><h3>Permainan ${index+1} · ${mode}</h3><p class="mu">${escapeHTML(item.date || '')}</p><dl><dt>Skor</dt><dd>${number(item.score)}</dd><dt>Jawaban benar</dt><dd>${number(item.correct)}</dd><dt>Perlu latihan lagi</dt><dd>${number(item.needsPractice)}</dd><dt>Akurasi</dt><dd>${number(item.accuracy)}%</dd><dt>Waktu bermain</dt><dd>${minutes} menit ${seconds} detik</dd></dl>${scores?`<p class="mu" style="margin-top:8px">${scores}</p>`:''}</article>`
+  }).join('')}</div>` : '<p class="c">Belum ada nilai tersimpan. Selesaikan satu permainan untuk melihat rekapnya.</p>';
+  app.innerHTML = `<div class="card"><h2 class="c">📊 Rekap Nilai</h2><p class="c mu">Maksimal 10 permainan terakhir. Rekap hanya tersimpan di browser pada perangkat ini.</p>${entries}<div class="c"><button class="btn" onclick="home()">Kembali</button></div></div>`
+}
 function hud() {
   const h = $('hud');
   h.classList.toggle('hide', !S.t0);
   if (!S.t0) return;
   $('hN').textContent = '👤 '+S.name;
-  $('hL').textContent = 'Level '+(S.l + 1);
-  $('hS').innerHTML = '⭐ Skor Level: <b>'+S.score[S.l]+'</b> · Total: <b>'+S.score.reduce((a, b) => a + b, 0)+'</b>';
+  $('hL').textContent = S.mode === 'easy' ? 'Mode Belajar' : 'Level '+(S.l + 1);
+  $('hS').innerHTML = S.mode === 'easy'
+    ? '⭐ Skor: <b>'+S.score[S.l]+'</b>'
+    : '⭐ Skor Level: <b>'+S.score[S.l]+'</b> · Total: <b>'+S.score.reduce((a, b) => a + b, 0)+'</b>';
+  $('hH').classList.toggle('hide', S.mode === 'easy');
   $('hH').textContent = '❤️'.repeat(S.lives)+'🖤'.repeat(3 - S.lives);
   $('pg').style.width = (S.qs.length ? S.i / S.qs.length * 100: 0)+'%'
 }
@@ -764,25 +1074,56 @@ function modal(html) {
 
 function home() {
   clearInterval(timer);
+  document.body.classList.remove('mode-easy');
   fresh();
   hud();
   app.innerHTML = `<div class="card"><div class="c mono" style="font-size:2.6rem;letter-spacing:.15em;color:var(--ac)">0101</div><h1>Binary Challenge</h1><p class="c mu">Petualangan Menguasai Bilangan Biner</p>
- <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>${levelChips()}
+ <p class="c">Bilangan biner hanya menggunakan dua angka, yaitu <b>0</b> dan <b>1</b>.</p>
+ <fieldset class="mode-select"><legend>Pilih cara bermain</legend>
+  <label class="mode-option"><input type="radio" name="gameMode" value="challenge" checked><span><b>Mode Tantangan</b><small>3 level, ada soal berhitung dan nyawa.</small></span></label>
+  <label class="mode-option"><input type="radio" name="gameMode" value="easy"><span><b>Mode Belajar</b><small>Pilihan besar, soal satu langkah, tanpa waktu dan nyawa. Nama boleh dikosongkan.</small></span></label>
+ </fieldset>
+ <div id="levels-preview">${levelChips()}</div>
  <input class="in" id="nm" maxlength="16" placeholder="Nama pemain" style="font-size:1.1rem;letter-spacing:0;font-family:Nunito">
- <div class="err" id="er"></div><div class="c"><button class="btn" onclick="startGame()">🚀 Mulai Game</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div></div>`
+ <div class="err" id="er" aria-live="polite"></div><div class="c"><button class="btn" onclick="startGame()">🚀 Mulai Game</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="showRecap()">📊 Rekap Nilai</button></div></div>`
+  document.querySelectorAll('input[name="gameMode"]').forEach(input => {
+    input.onchange = () => document.body.classList.toggle('mode-easy', input.value === 'easy' && input.checked)
+  })
 }
 function startGame() {
   const n = $('nm').value.trim();
-  if (!n) {
+  const mode = document.querySelector('input[name="gameMode"]:checked')?.value || 'challenge';
+  if (!n && mode !== 'easy') {
     $('er').textContent = 'Isi nama pemain dulu ya!';
     return
   }
-  S.name = n;
+  S.name = n || 'Pemain';
+  S.mode = mode;
   S.t0 = Date.now();
+  if (S.mode === 'easy') {
+    document.body.classList.add('mode-easy');
+    return easyIntro()
+  }
+  document.body.classList.remove('mode-easy');
   intro()
+}
+function easyIntro() {
+  hud();
+  app.innerHTML = `<div class="card c"><div class="mu">Mode Belajar</div><h2>Kita belajar pelan-pelan</h2><p>Jawab 6 soal dengan memilih gambar atau angka yang cocok.</p><p>Tidak ada hitung mundur dan tidak ada nyawa yang hilang. Kalau belum cocok, kita lihat jawabannya bersama.</p><button class="btn" onclick="startEasy()">Mulai Belajar</button><button class="btn g" onclick="home()">Kembali</button></div>`
+}
+function startEasy() {
+  S.l = 0;
+  S.qs = GEN.choices();
+  S.i = 0;
+  S.score[0] = 0;
+  S.ok[0] = 0;
+  S.bad[0] = 0;
+  S.bonus[0] = 0;
+  question()
 }
 function intro() {
   clearInterval(timer);
+  document.body.classList.remove('mode-easy');
   const L = LEVELS[S.l];
   hud();
   const rules = S.l === 1 ? `<table style="font-size:1.2rem"><tr><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr></table>`: '';
@@ -798,18 +1139,39 @@ function startLevel() {
   S.lives = 3;
   question()
 }
+function easyVisual(q) {
+  if (q.visual.kind === 'number') {
+    return `<span class="easy-number" aria-hidden="true">${q.visual.value}</span><span class="easy-stimulus-label">${q.visual.label}</span>`
+  }
+  const shade = q.visual.value === 'dark' ? 'dark' : 'light';
+  return `<span class="easy-swatch ${shade}" aria-hidden="true"></span><span class="easy-stimulus-label">${q.visual.label}</span>`
+}
+function easyChoiceButton(option) {
+  const spoken = option.kind === 'number' ? 'Angka '+option.label : option.label;
+  const face = option.kind === 'number'
+    ? `<span class="easy-choice-number" aria-hidden="true">${option.label}</span><span>${spoken}</span>`
+    : `<span class="easy-swatch ${option.swatch}" aria-hidden="true"></span><span>${spoken}</span>`;
+  return `<button type="button" class="easy-choice" data-value="${option.value}" aria-label="${spoken}">${face}</button>`
+}
 function question() {
   clearInterval(timer);
   hud();
-  const L = LEVELS[S.l], q = S.qs[S.i];
+  const L = S.mode === 'easy'
+    ? { name: 'Mode Belajar', time: 0, pts: 10, hint: 'Angka 0 = hitam. Angka 1 = putih.' }
+    : LEVELS[S.l];
+  const q = S.qs[S.i];
   let body;
-  if (q.kind === 'color') body = `<div class="c mu">Ketuk tiap kotak untuk mewarnainya.<br>0 = <b>HITAM</b> &nbsp;·&nbsp; 1 = <b>PUTIH</b></div><div class="row" style="margin:16px 0">${[...q.d].map((c,i)=>`<div class="col"><div class="dg">${c}</div><button class="sq n" data-i="${i}" aria-label="Kotak ${i+1}"></button></div>`).join('')}</div><div class="err" id="er"></div><div class="c"><button class="btn" onclick="checkColor()">Periksa</button></div>`;
+  if (q.kind === 'choice') body = `<div class="easy-question"><p class="c easy-prompt" aria-live="polite">${q.prompt}</p><div class="easy-stimulus" role="img" aria-label="${q.visual.label}">${easyVisual(q)}</div><p class="c">Pilih salah satu jawaban.</p><div class="easy-choice-grid">${q.options.map(easyChoiceButton).join('')}</div><div class="err" id="er" aria-live="polite"></div></div>`;
+  else if (q.kind === 'color') body = `<div class="c mu">Ketuk tiap kotak untuk mewarnainya.<br>0 = <b>HITAM</b> &nbsp;·&nbsp; 1 = <b>PUTIH</b></div><div class="row" style="margin:16px 0">${[...q.d].map((c,i)=>`<div class="col"><div class="dg">${c}</div><button class="sq n" data-i="${i}" aria-label="Kotak ${i+1}"></button></div>`).join('')}</div><div class="err" id="er"></div><div class="c"><button class="btn" onclick="checkColor()">Periksa</button></div>`;
   else if (q.kind === 'bits') {
     const pv = [128, 64, 32, 16, 8, 4, 2, 1];
     body = `<div class="bitrow"><div class="bits">${pv.map((v,i)=>`<button class="bt" data-i="${i}">0</button>`).join('')}</div><div class="rt"><span>=</span><div class="val">${q.n}</div></div></div><div class="bitrow" style="margin-top:0"><div class="bits pv">${pv.map(v=>`<div>${v}</div>`).join('')}</div><div class="sp"></div></div><div class="c"><button class="btn" onclick="ans(cur.join(''))">Periksa</button></div>`
   }
   else body = `<div class="c">${q.html}</div><input class="in" id="ai" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="${q.kind==='bin'?'0 dan 1':'angka'}"><div class="err" id="er"></div><div class="c"><button class="btn" onclick="submitAns()">Periksa</button></div>`;
-  app.innerHTML = `<div class="card"><div class="hud"><span class="mu">Soal ${S.i+1} / ${S.qs.length}</span><button class="btn g" style="padding:6px 12px" onclick="modal('<h2>💡 Petunjuk</h2><p>${L.hint}</p>')">💡 Lihat Petunjuk</button></div>${L.time?'<div class="bar t"><i id="tb" style="width:100%"></i></div>':''}${body}<div id="fb"></div></div>`;
+  app.innerHTML = `<div class="card"><div class="hud"><span class="mu" aria-live="polite">Soal ${S.i+1} / ${S.qs.length}</span><button class="btn g" style="padding:6px 12px" onclick="modal('<h2>💡 Petunjuk</h2><p>${L.hint}</p>')">💡 Lihat Petunjuk</button></div>${L.time?'<div class="bar t"><i id="tb" style="width:100%"></i></div>':''}${body}<div id="fb" aria-live="polite"></div></div>`;
+  if (q.kind === 'choice') {
+    document.querySelectorAll('.easy-choice').forEach(b => b.onclick = () => ans(b.dataset.value))
+  }
   if (q.kind === 'color') {
     cur = Array(q.d.length).fill(null);
     document.querySelectorAll('.sq').forEach(b => b.onclick = () => {
@@ -870,7 +1232,7 @@ function ans(v) {
   clearInterval(timer);
   const L = LEVELS[S.l], q = S.qs[S.i], good = v === q.ans;
   const card = app.firstChild;
-  card.classList.add(good ? 'bounce': 'shake');
+  if (S.mode !== 'easy') card.classList.add(good ? 'bounce': 'shake');
   if (good) {
     S.score[S.l] += L.pts;
     S.ok[S.l]++;
@@ -878,11 +1240,20 @@ function ans(v) {
   }
   else {
     S.bad[S.l]++;
-    S.lives--;
-    beep(SND.no)
+    if (S.mode !== 'easy') {
+      S.lives--;
+      beep(SND.no)
+    }
   }
   let head, txt = q.exp;
-  if (q.kind === 'color') {
+  if (q.kind === 'choice') {
+    document.querySelectorAll('.easy-choice').forEach(b => {
+      if (b.dataset.value === q.ans) b.classList.add('correct');
+      else if (b.dataset.value === v) b.classList.add('selected-wrong')
+    });
+    head = good ? 'Tepat! Kamu hebat.' : 'Belum cocok. Tidak apa-apa, kita belajar bersama.'
+  }
+  else if (q.kind === 'color') {
     document.querySelectorAll('.sq').forEach((b, i) => {
       const t = q.d[i];
       b.className = 'sq '+(t === '1' ? 'w': 'k');
@@ -903,17 +1274,20 @@ function ans(v) {
   }
   else if (good) head = 'Benar! Kerja bagus!';
   else head = (v === null ? '⏰ Waktu habis! ': '')+`Jawaban yang benar: ${q.ans}`;
-  const over = S.lives <= 0, last = S.i === S.qs.length - 1;
-  document.querySelectorAll('.card button.btn,.card input,.sq,.bt').forEach(e => {
+  const over = S.mode !== 'easy' && S.lives <= 0, last = S.i === S.qs.length - 1;
+  document.querySelectorAll('.card button.btn,.card input,.sq,.bt,.easy-choice').forEach(e => {
     if (!e.classList.contains('g')) e.disabled = true
   });
-  $('fb').innerHTML = `<div class="fb ${good?'ok':'no'}"><b>${good?'✅ ':'❌ '}${head}</b>${good&&q.kind!=='color'&&S.l===2?'':txt?`<div class="t">${txt}</div>`:''}</div><div class="c" style="margin-top:8px"><button class="btn" onclick="${over?'gameOver()':'next()'}">${over?'Lanjut':last?'Selesai Level':'Soal Berikutnya'}</button></div>`;
+  const feedbackClass = good ? 'ok' : S.mode === 'easy' ? 'learn' : 'no';
+  const feedbackIcon = good ? '✅ ' : S.mode === 'easy' ? '💡 ' : '❌ ';
+  const actionLabel = over ? 'Lanjut' : last ? S.mode === 'easy' ? 'Lihat Rekap Nilai' : 'Selesai Level' : 'Soal Berikutnya';
+  $('fb').innerHTML = `<div class="fb ${feedbackClass}"><b>${feedbackIcon}${head}</b>${txt?`<div class="t">${txt}</div>`:''}</div><div class="c" style="margin-top:8px"><button class="btn" onclick="${over?'gameOver()':'next()'}">${actionLabel}</button></div>`;
   hud();
 
 }
 function next() {
   S.i++;
-  if (S.i >= S.qs.length) return levelDone();
+  if (S.i >= S.qs.length) return S.mode === 'easy' ? final() : levelDone();
   question()
 }
 function levelDone() {
@@ -940,23 +1314,33 @@ function predikat(pc) {
 function gameOver() {
   clearInterval(timer);
   beep(SND.no);
+  saveResult();
   const tot = S.score.reduce((a, b) => a + b, 0), ok = S.ok.reduce((a, b) => a + b, 0), bad = S.bad.reduce((a, b) => a + b, 0), pc = ok + bad ? Math.round(ok / (ok + bad) * 100): 0;
   const rows = [0, 1, 2].map(i => `<tr><td>Skor Level ${i+1}</td><td>${i<=S.l?S.score[i]:'-'}</td></tr>`).join('');
-  app.innerHTML = `<div class="card c"><div style="font-size:3rem">💔</div><h2>Game Berakhir</h2><p>Nyawamu habis di Level ${S.l+1}.</p><table class="res" style="text-align:left">${rows}<tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Nilai</td><td>${pc}</td></tr></table><h2 style="color:var(--ac)">${predikat(pc)}</h2><button class="btn" onclick="retry()">Coba Lagi</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`
+  app.innerHTML = `<div class="card c"><div style="font-size:3rem">💔</div><h2>Game selesai untuk saat ini</h2><p>Kita bisa mencoba lagi kapan saja.</p><table class="res" style="text-align:left">${rows}<tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Nilai</td><td>${pc}%</td></tr></table><h2 style="color:var(--ac)">${predikat(pc)}</h2><button class="btn" onclick="retry()">Coba Level Ini Lagi</button><button class="btn g" onclick="showRecap()">📊 Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`
 }
 function retry() {
   S.t0 = S.t0 || Date.now();
+  S.saved = false;
   startLevel()
 }
 function final() {
-  const tot = S.score.reduce((a, b) => a + b, 0), ok = S.ok.reduce((a, b) => a + b, 0), bad = S.bad.reduce((a, b) => a + b, 0), pc = Math.round(ok / (ok + bad) * 100);
+  saveResult();
+  const tot = S.score.reduce((a, b) => a + b, 0), ok = S.ok.reduce((a, b) => a + b, 0), bad = S.bad.reduce((a, b) => a + b, 0), answered = ok + bad, pc = answered ? Math.round(ok / answered * 100) : 0;
   const pr = pc >= 90 ? 'Master Biner': pc >= 75 ? 'Ahli Biner': pc >= 60 ? 'Pejuang Biner': 'Ayo Berlatih Lagi';
   const sec = Math.round((Date.now() - S.t0) / 1000), tm = `${Math.floor(sec/60)} menit ${sec%60} detik`;
+  const mode = S.mode === 'easy' ? 'Mode Belajar' : 'Mode Tantangan';
+  const results = S.mode === 'easy'
+    ? `<tr><td>Soal selesai</td><td>${S.qs.length}</td></tr>`
+    : [0, 1, 2].map(i => `<tr><td>Skor Level ${i+1}</td><td>${S.score[i]}</td></tr>`).join('');
+  const praise = S.mode === 'easy'
+    ? pc === 100 ? 'Hebat! Kamu sudah mengenal pasangan angka dan warna.' : 'Kamu sudah berusaha. Kita bisa belajar lagi.'
+    : pr;
   hud();
   beep(SND.end);
-  app.innerHTML = `<div class="card c"><div style="font-size:3rem">🏆</div><h2>Selamat! Kamu telah menyelesaikan Binary Challenge!</h2>
- <table class="res" style="text-align:left"><tr><td>Nama pemain</td><td>${S.name.replace(/</g,'&lt;')}</td></tr><tr><td>Skor Level 1</td><td>${S.score[0]}</td></tr><tr><td>Skor Level 2</td><td>${S.score[1]}</td></tr><tr><td>Skor Level 3</td><td>${S.score[2]}</td></tr><tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Waktu bermain</td><td>${tm}</td></tr><tr><td>Akurasi</td><td>${pc}%</td></tr></table>
- <h2 style="color:var(--ac)">🎖️ ${pr}</h2><button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`
+  app.innerHTML = `<div class="card c"><div style="font-size:3rem">🏆</div><h2>Rekap Nilai</h2><p>Terima kasih sudah bermain, <b>${escapeHTML(S.name)}</b>!</p>
+ <table class="res" style="text-align:left"><tr><td>Mode</td><td>${mode}</td></tr>${results}<tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Perlu latihan lagi</td><td>${bad}</td></tr><tr><td>Waktu bermain</td><td>${tm}</td></tr><tr><td>Akurasi</td><td>${pc}%</td></tr></table>
+ <h2 style="color:var(--ac)">${S.mode === 'easy' ? '🌟' : '🎖️'} ${praise}</h2><button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="showRecap()">📊 Semua Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div>`
 }
 (function() {
   const T = ['0', '1', '0', '1', '01', '10', '0101', '1010', '1101', '0011', '</>', '{ }', '1+1'], C = ['#ff4fa3', '#ff9f1a', '#12c4a0', '#7c5cff', '#2b9cf5', '#7bc61a', '#f43f5e', '#ffc400'], b = $('bg');
