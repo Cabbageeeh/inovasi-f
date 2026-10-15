@@ -1107,16 +1107,11 @@ function readHistory() {
 function saveResult() {
   if (S.saved) return;
   S.saved = true;
-  const correct = S.ok.reduce((a, b) => a + b, 0), needsPractice = S.bad.reduce((a, b) => a + b, 0), answered = correct + needsPractice;
+  const correct = S.ok.reduce((a, b) => a + b, 0), answered = correct + S.bad.reduce((a, b) => a + b, 0);
   const result = {
-    date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-    mode: S.mode,
+    name: S.name || 'Pemain',
     score: S.score.reduce((a, b) => a + b, 0),
-    correct,
-    needsPractice,
-    accuracy: answered ? Math.round(correct / answered * 100) : 0,
-    duration: Math.max(0, Math.round((Date.now() - S.t0) / 1000)),
-    levelScores: S.mode === 'easy' ? [S.score[0]] : S.score.slice(0, S.l + 1)
+    accuracy: answered ? Math.round(correct / answered * 100) : 0
   };
   try {
     localStorage.setItem(HISTORY_KEY, JSON.stringify([result, ...readHistory()].slice(0, 10)))
@@ -1127,16 +1122,9 @@ function saveResult() {
 }
 function showRecap() {
   const history = readHistory();
-  const entries = history.length ? `<div class="recap-list">${history.map((item, index) => {
-    const mode = item.mode === 'easy' ? 'Mode Belajar' : 'Mode Tantangan';
+  const entries = history.length ? `<div class="recap-list">${history.map(item => {
     const number = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
-    const scores = Array.isArray(item.levelScores)
-      ? item.mode === 'easy'
-        ? `Skor Mode Belajar: ${number(item.levelScores[0])}`
-        : item.levelScores.map((score, i) => `Level ${i+1}: ${number(score)}`).join(' · ')
-      : '';
-    const duration = number(item.duration), minutes = Math.floor(duration / 60), seconds = duration % 60;
-    return `<article class="recap-entry"><h3>Permainan ${index+1} · ${mode}</h3><p class="mu">${escapeHTML(item.date || '')}</p><dl><dt>Skor</dt><dd>${number(item.score)}</dd><dt>Jawaban benar</dt><dd>${number(item.correct)}</dd><dt>Perlu latihan lagi</dt><dd>${number(item.needsPractice)}</dd><dt>Akurasi</dt><dd>${number(item.accuracy)}%</dd><dt>Waktu bermain</dt><dd>${minutes} menit ${seconds} detik</dd></dl>${scores?`<p class="mu" style="margin-top:8px">${scores}</p>`:''}</article>`
+    return `<article class="recap-entry"><h3>${escapeHTML(item.name || 'Pemain')}</h3><dl><dt>Skor</dt><dd>${number(item.score)}</dd><dt>Akurasi</dt><dd>${number(item.accuracy)}%</dd></dl></article>`
   }).join('')}</div>` : '<p class="c">Belum ada nilai tersimpan. Selesaikan satu permainan untuk melihat rekapnya.</p>';
   app.innerHTML = `<div class="card"><h2 class="c">📊 Rekap Nilai</h2><p class="c mu">Maksimal 10 permainan terakhir. Rekap hanya tersimpan di browser pada perangkat ini.</p>${entries}<div class="c"><button class="btn" onclick="home()">Kembali</button></div></div>`
 }
@@ -1444,16 +1432,12 @@ function after() {
   S.unlocked = Math.max(S.unlocked, S.l);
   intro()
 }
-function predikat(pc) {
-  return pc >= 90 ? 'Master Biner': pc >= 75 ? 'Ahli Biner': pc >= 60 ? 'Pejuang Biner': 'Ayo Berlatih Lagi'
-}
 function gameOver() {
   clearInterval(timer);
   beep(SND.no);
   saveResult();
-  const tot = S.score.reduce((a, b) => a + b, 0), ok = S.ok.reduce((a, b) => a + b, 0), bad = S.bad.reduce((a, b) => a + b, 0), pc = ok + bad ? Math.round(ok / (ok + bad) * 100): 0;
-  const rows = [0, 1, 2].map(i => `<tr><td>Skor Level ${i+1}</td><td>${i<=S.l?S.score[i]:'-'}</td></tr>`).join('');
-  app.innerHTML = `<div class="card c"><div style="font-size:3rem">💔</div><h2>Game selesai untuk saat ini</h2><p>Kita bisa mencoba lagi kapan saja.</p><table class="res" style="text-align:left">${rows}<tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Jawaban salah</td><td>${bad}</td></tr><tr><td>Nilai</td><td>${pc}%</td></tr></table><h2 style="color:var(--ac)">${predikat(pc)}</h2><button class="btn" onclick="retry()">Coba Level Ini Lagi</button><button class="btn g" onclick="showRecap()">📊 Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`
+  const score = S.score.reduce((a, b) => a + b, 0), correct = S.ok.reduce((a, b) => a + b, 0), answered = correct + S.bad.reduce((a, b) => a + b, 0), accuracy = answered ? Math.round(correct / answered * 100) : 0;
+  app.innerHTML = `<div class="card c"><div style="font-size:3rem">💔</div><h2>Game selesai untuk saat ini</h2><p>Kita bisa mencoba lagi kapan saja.</p><p>Nama pemain: <b>${escapeHTML(S.name)}</b></p><table class="res" style="text-align:left"><tr><td><b>Skor</b></td><td><b>${score}</b></td></tr><tr><td>Akurasi</td><td>${accuracy}%</td></tr></table><button class="btn" onclick="retry()">Coba Level Ini Lagi</button><button class="btn g" onclick="showRecap()">📊 Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button><button class="btn g" onclick="home()">Keluar</button></div>`
 }
 function retry() {
   S.t0 = S.t0 || Date.now();
@@ -1462,21 +1446,12 @@ function retry() {
 }
 function final() {
   saveResult();
-  const tot = S.score.reduce((a, b) => a + b, 0), ok = S.ok.reduce((a, b) => a + b, 0), bad = S.bad.reduce((a, b) => a + b, 0), answered = ok + bad, pc = answered ? Math.round(ok / answered * 100) : 0;
-  const pr = pc >= 90 ? 'Master Biner': pc >= 75 ? 'Ahli Biner': pc >= 60 ? 'Pejuang Biner': 'Ayo Berlatih Lagi';
-  const sec = Math.round((Date.now() - S.t0) / 1000), tm = `${Math.floor(sec/60)} menit ${sec%60} detik`;
-  const mode = S.mode === 'easy' ? 'Mode Belajar' : 'Mode Tantangan';
-  const results = S.mode === 'easy'
-    ? `<tr><td>Soal selesai</td><td>${S.qs.length}</td></tr>`
-    : [0, 1, 2].map(i => `<tr><td>Skor Level ${i+1}</td><td>${S.score[i]}</td></tr>`).join('');
-  const praise = S.mode === 'easy'
-    ? pc === 100 ? 'Hebat! Kamu sudah mengenal pasangan angka dan warna.' : 'Kamu sudah berusaha. Kita bisa belajar lagi.'
-    : pr;
+  const score = S.score.reduce((a, b) => a + b, 0), correct = S.ok.reduce((a, b) => a + b, 0), answered = correct + S.bad.reduce((a, b) => a + b, 0), accuracy = answered ? Math.round(correct / answered * 100) : 0;
   hud();
   beep(SND.end);
-  app.innerHTML = `<div class="card c"><div style="font-size:3rem">🏆</div><h2>Rekap Nilai</h2><p>Terima kasih sudah bermain, <b>${escapeHTML(S.name)}</b>!</p>
- <table class="res" style="text-align:left"><tr><td>Mode</td><td>${mode}</td></tr>${results}<tr><td><b>Total skor</b></td><td><b>${tot}</b></td></tr><tr><td>Jawaban benar</td><td>${ok}</td></tr><tr><td>Perlu latihan lagi</td><td>${bad}</td></tr><tr><td>Waktu bermain</td><td>${tm}</td></tr><tr><td>Akurasi</td><td>${pc}%</td></tr></table>
- <h2 style="color:var(--ac)">${S.mode === 'easy' ? '🌟' : '🎖️'} ${praise}</h2><button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="showRecap()">📊 Semua Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div>`
+  app.innerHTML = `<div class="card c"><div style="font-size:3rem">🏆</div><h2>Rekap Nilai</h2><p>Nama pemain: <b>${escapeHTML(S.name)}</b></p>
+ <table class="res" style="text-align:left"><tr><td><b>Skor</b></td><td><b>${score}</b></td></tr><tr><td>Akurasi</td><td>${accuracy}%</td></tr></table>
+ <button class="btn" onclick="home()">Main Lagi</button><button class="btn g" onclick="showRecap()">📊 Semua Rekap Nilai</button><button class="btn g" onclick="modal('<h2>📖 Materi</h2>'+MATERI)">Pelajari Materi</button></div>`
 }
 (function() {
   const T = ['0', '1', '0', '1', '01', '10', '0101', '1010', '1101', '0011', '</>', '{ }', '1+1'], C = ['#ff4fa3', '#ff9f1a', '#12c4a0', '#7c5cff', '#2b9cf5', '#7bc61a', '#f43f5e', '#ffc400'], b = $('bg');
